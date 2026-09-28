@@ -276,20 +276,17 @@ export default function OnboardingFlow({ onFinish }) {
         </motion.div>
       )}
 
-      {/* STEP 2 (STEP 1 OF 3): CALCULATOR MONTHLY INCOME */}
+      {/* STEP 2: CALCULATOR MONTHLY INCOME */}
       {step === 2 && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0 }}
-          className="flex-1 flex flex-col justify-between py-4 select-none"
+          className="flex-1 flex flex-col justify-between py-2 select-none"
         >
           {/* Top Title Only */}
-          <div>
-            <span className="text-xs font-extrabold text-[#A0A0A0] uppercase tracking-widest block">
-              Step 1 of 3
-            </span>
-            <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight mt-1">
+          <div className="pt-2">
+            <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
               What is your monthly income?
             </h2>
           </div>
@@ -302,45 +299,36 @@ export default function OnboardingFlow({ onFinish }) {
             </span>
           </div>
 
-          {/* 3-Column Calculator Keypad */}
-          <div className="space-y-2.5 max-w-sm mx-auto w-full">
+          {/* 3-Column Filled Calculator Keypad */}
+          <div className="space-y-2.5 max-w-sm mx-auto w-full pb-2">
             <div className="grid grid-cols-3 gap-2.5">
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0'].map((k) => (
                 <button
                   key={k}
                   onClick={() => handleSetupKeypadPress(k)}
-                  className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#262626] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+                  className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
                 >
                   {k}
                 </button>
               ))}
               <button
                 onClick={() => handleSetupKeypadPress('backspace')}
-                className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#262626] text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+                className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
               >
                 <Delete size={22} />
               </button>
             </div>
-          </div>
 
-          {/* Bottom Navigation */}
-          <div className="flex items-center space-x-3 pt-3">
-            <button
-              onClick={() => setStep(1)}
-              className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF] hover:bg-[#222222] transition-all"
-            >
-              <ArrowLeft size={18} />
-            </button>
-
+            {/* Bottom Keypad Action: Full-width Next Key */}
             <button
               onClick={() => {
                 setIncomeSources([{ id: '1', name: 'Primary Salary', amount: setupIncomeStr }]);
                 setStep(3);
               }}
               disabled={totalIncome <= 0}
-              className="flex-1 h-14 bg-[#FFFFFF] disabled:bg-[#333333] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95"
+              className="w-full h-14 bg-[#FFFFFF] disabled:bg-[#333333] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95 mt-2"
             >
-              <span>Continue to Allocation</span>
+              <span>Next</span>
               <ArrowRight size={18} strokeWidth={2.5} />
             </button>
           </div>
