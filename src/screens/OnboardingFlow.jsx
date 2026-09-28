@@ -356,197 +356,266 @@ export default function OnboardingFlow({ onFinish }) {
           exit={{ opacity: 0 }}
           className="flex-1 flex flex-col justify-between py-4 space-y-6"
         >
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-extrabold text-[#A0A0A0] uppercase tracking-widest">
-                  Step 2 of 3
-                </span>
-                <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight mt-1">
-                  Where should your money go?
-                </h2>
-                <p className="text-sm text-[#8A8A8A] mt-1.5">
-                  Allocate across the 3 pillars.
-                </p>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
+                Where should your money go?
+              </h2>
+              <p className="text-sm text-[#8A8A8A] mt-1">
+                Slide to adjust your budget ratio for {currency}{totalIncome.toLocaleString('en-IN')}.
+              </p>
+            </div>
 
-              {/* Amount / Percentage Switcher */}
-              <div className="flex items-center bg-[#161616] border border-[#242424] p-1.5 rounded-full text-xs">
-                <button
-                  onClick={() => setAllocationMode('percent')}
-                  className={`px-3.5 py-1.5 rounded-full font-bold transition-all ${
-                    allocationMode === 'percent' ? 'bg-[#FFFFFF] text-[#0A0A0A]' : 'text-[#8A8A8A]'
-                  }`}
-                >
-                  %
-                </button>
-                <button
-                  onClick={() => setAllocationMode('amount')}
-                  className={`px-3.5 py-1.5 rounded-full font-bold transition-all ${
-                    allocationMode === 'amount' ? 'bg-[#FFFFFF] text-[#0A0A0A]' : 'text-[#8A8A8A]'
-                  }`}
-                >
-                  {currency}
-                </button>
+            {/* Horizontal Segmented Ratio Visualizer Bar */}
+            <div className="bg-[#141414] border border-[#222222] rounded-2xl p-3.5 space-y-2.5">
+              <div className="h-3.5 rounded-full overflow-hidden flex bg-[#1E1E1E] gap-0.5">
+                <div
+                  style={{ width: `${percentAllocations.needs}%` }}
+                  className="h-full bg-[#FFFFFF] transition-all"
+                />
+                <div
+                  style={{ width: `${percentAllocations.wants}%` }}
+                  className="h-full bg-[#8E8E93] transition-all"
+                />
+                <div
+                  style={{ width: `${percentAllocations.savings}%` }}
+                  className="h-full bg-[#48484A] transition-all"
+                />
+              </div>
+              <div className="flex items-center justify-between text-xs font-semibold text-[#A0A0A0] px-1">
+                <div className="flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
+                  <span>Needs {percentAllocations.needs}%</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#8E8E93]" />
+                  <span>Wants {percentAllocations.wants}%</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#48484A]" />
+                  <span>Savings {percentAllocations.savings}%</span>
+                </div>
               </div>
             </div>
 
-            {/* Income Allocation Cards (Needs 50%, Wants 30%, Savings 20%) */}
-            <div className="space-y-3.5">
-              {/* Needs Allocation */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
+            {/* Quick Presets */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { name: '50/30/20', n: 50, w: 30, s: 20 },
+                { name: '60/20/20', n: 60, w: 20, s: 20 },
+                { name: '70/20/10', n: 70, w: 20, s: 10 },
+                { name: '40/30/30', n: 40, w: 30, s: 30 },
+              ].map((p) => {
+                const isMatch =
+                  percentAllocations.needs === p.n &&
+                  percentAllocations.wants === p.w &&
+                  percentAllocations.savings === p.s;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => setPercentAllocations({ needs: p.n, wants: p.w, savings: p.s })}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold transition-all border ${
+                      isMatch
+                        ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
+                        : 'bg-[#141414] text-[#8A8A8A] border-[#222222] hover:bg-[#1A1A1A]'
+                    }`}
+                  >
+                    {p.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Horizontal Range Slider Cards */}
+            <div className="space-y-3">
+              {/* Needs */}
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#FFFFFF]"></span>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFFFFF]" />
                     <span className="text-sm font-bold text-[#FFFFFF]">Needs (Essentials)</span>
                   </div>
-                  <span className="text-base font-bold font-mono text-[#FFFFFF]">
-                    {currency}{currentAllocations.needs.toLocaleString('en-IN')}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                      {currency}{currentAllocations.needs.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.needs}%)</span>
+                  </div>
                 </div>
 
-                {allocationMode === 'percent' ? (
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={percentAllocations.needs}
-                      onChange={(e) =>
-                        setPercentAllocations((prev) => ({ ...prev, needs: Number(e.target.value) }))
-                      }
-                      className="flex-1 accent-white"
-                    />
-                    <span className="text-sm font-mono font-bold w-12 text-right">{percentAllocations.needs}%</span>
-                  </div>
-                ) : (
+                <div className="flex items-center space-x-3 pt-1">
                   <input
-                    type="number"
-                    value={amountAllocations.needs}
-                    onChange={(e) => setAmountAllocations((prev) => ({ ...prev, needs: e.target.value }))}
-                    className="w-full bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-2 text-sm font-mono font-bold text-[#FFFFFF]"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={percentAllocations.needs}
+                    onChange={(e) =>
+                      setPercentAllocations((prev) => ({ ...prev, needs: Number(e.target.value) }))
+                    }
+                    className="flex-1 accent-white h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                )}
+                  <div className="flex items-center space-x-1 shrink-0">
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, needs: Math.max(0, prev.needs - 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      -5%
+                    </button>
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, needs: Math.min(100, prev.needs + 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Wants Allocation */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
+              {/* Wants */}
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#8A8A8A]"></span>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#8E8E93]" />
                     <span className="text-sm font-bold text-[#FFFFFF]">Wants (Lifestyle)</span>
                   </div>
-                  <span className="text-base font-bold font-mono text-[#FFFFFF]">
-                    {currency}{currentAllocations.wants.toLocaleString('en-IN')}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                      {currency}{currentAllocations.wants.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.wants}%)</span>
+                  </div>
                 </div>
 
-                {allocationMode === 'percent' ? (
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={percentAllocations.wants}
-                      onChange={(e) =>
-                        setPercentAllocations((prev) => ({ ...prev, wants: Number(e.target.value) }))
-                      }
-                      className="flex-1 accent-white"
-                    />
-                    <span className="text-sm font-mono font-bold w-12 text-right">{percentAllocations.wants}%</span>
-                  </div>
-                ) : (
+                <div className="flex items-center space-x-3 pt-1">
                   <input
-                    type="number"
-                    value={amountAllocations.wants}
-                    onChange={(e) => setAmountAllocations((prev) => ({ ...prev, wants: e.target.value }))}
-                    className="w-full bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-2 text-sm font-mono font-bold text-[#FFFFFF]"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={percentAllocations.wants}
+                    onChange={(e) =>
+                      setPercentAllocations((prev) => ({ ...prev, wants: Number(e.target.value) }))
+                    }
+                    className="flex-1 accent-[#8E8E93] h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                )}
+                  <div className="flex items-center space-x-1 shrink-0">
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, wants: Math.max(0, prev.wants - 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      -5%
+                    </button>
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, wants: Math.min(100, prev.wants + 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Savings Allocation */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
+              {/* Savings */}
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#444444]"></span>
-                    <span className="text-sm font-bold text-[#FFFFFF]">Savings & Investments</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#48484A]" />
+                    <span className="text-sm font-bold text-[#FFFFFF]">Savings & Debt</span>
                   </div>
-                  <span className="text-base font-bold font-mono text-[#FFFFFF]">
-                    {currency}{currentAllocations.savings.toLocaleString('en-IN')}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                      {currency}{currentAllocations.savings.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.savings}%)</span>
+                  </div>
                 </div>
 
-                {allocationMode === 'percent' ? (
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={percentAllocations.savings}
-                      onChange={(e) =>
-                        setPercentAllocations((prev) => ({ ...prev, savings: Number(e.target.value) }))
-                      }
-                      className="flex-1 accent-white"
-                    />
-                    <span className="text-sm font-mono font-bold w-12 text-right">{percentAllocations.savings}%</span>
-                  </div>
-                ) : (
+                <div className="flex items-center space-x-3 pt-1">
                   <input
-                    type="number"
-                    value={amountAllocations.savings}
-                    onChange={(e) => setAmountAllocations((prev) => ({ ...prev, savings: e.target.value }))}
-                    className="w-full bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-2 text-sm font-mono font-bold text-[#FFFFFF]"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={percentAllocations.savings}
+                    onChange={(e) =>
+                      setPercentAllocations((prev) => ({ ...prev, savings: Number(e.target.value) }))
+                    }
+                    className="flex-1 accent-[#636366] h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                )}
+                  <div className="flex items-center space-x-1 shrink-0">
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, savings: Math.max(0, prev.savings - 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      -5%
+                    </button>
+                    <button
+                      onClick={() => setPercentAllocations((prev) => ({ ...prev, savings: Math.min(100, prev.savings + 5) }))}
+                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Over-allocation or Balanced Status Banner */}
             {isOverAllocated ? (
-              <div className="bg-[#1F1414] border border-[#442222] rounded-2xl p-4 flex items-center space-x-3 text-xs">
-                <AlertCircle size={20} className="text-[#FFFFFF] shrink-0" />
-                <div>
-                  <span className="font-bold text-[#FFFFFF] block text-sm">Over allocated by {currency}{overAmount.toLocaleString('en-IN')}</span>
-                  <span className="text-xs text-[#A0A0A0]">Allocated ({currency}{totalAllocated.toLocaleString('en-IN')}) exceeds total monthly income.</span>
+              <div className="bg-[#1F1414] border border-[#442222] rounded-2xl p-3.5 flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2.5">
+                  <AlertCircle size={18} className="text-[#FF6B6B] shrink-0" />
+                  <div>
+                    <span className="font-bold text-[#FFFFFF] block">Over allocated by {currency}{overAmount.toLocaleString('en-IN')}</span>
+                    <span className="text-[11px] text-[#A0A0A0]">Total is {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings}%</span>
+                  </div>
                 </div>
+                <button
+                  onClick={() => {
+                    const rem = Math.max(0, 100 - percentAllocations.needs - percentAllocations.wants);
+                    setPercentAllocations((prev) => ({ ...prev, savings: rem }));
+                  }}
+                  className="px-3 py-1.5 bg-[#331818] border border-[#662222] rounded-full text-xs font-bold text-[#FF6B6B]"
+                >
+                  Auto-Fix
+                </button>
               </div>
             ) : (
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 flex items-center justify-between text-xs">
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[#8A8A8A] block font-bold text-xs uppercase">Total Allocated</span>
-                  <span className="text-lg font-bold font-mono text-[#FFFFFF]">
-                    {currency}{totalAllocated.toLocaleString('en-IN')} of {currency}{totalIncome.toLocaleString('en-IN')}
+                  <span className="text-[#8A8A8A] block font-bold text-[11px] uppercase">Total Allocation</span>
+                  <span className="text-base font-bold font-mono text-[#FFFFFF]">
+                    {currency}{totalAllocated.toLocaleString('en-IN')} ({percentAllocations.needs + percentAllocations.wants + percentAllocations.savings}%)
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-[#8A8A8A] block font-bold text-xs uppercase">Unallocated</span>
-                  <span className="text-sm font-bold font-mono text-[#D6D6D6]">
-                    {currency}{unallocatedAmount.toLocaleString('en-IN')}
-                  </span>
+                <div className="flex items-center space-x-1.5 bg-[#FFFFFF] text-[#090909] px-3 py-1 rounded-full font-bold text-xs">
+                  <Check size={14} strokeWidth={3} />
+                  <span>Balanced</span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center space-x-3 pt-2">
+          {/* Navigation Bar with Arrow Continue */}
+          <div className="flex items-center justify-between pt-2">
             <button
               onClick={() => setStep(2)}
-              className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF]"
+              className="w-14 h-14 bg-[#141414] border border-[#242424] rounded-full flex items-center justify-center text-[#FFFFFF] hover:bg-[#1C1C1C] transition-all active:scale-95"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={20} strokeWidth={2.4} />
             </button>
 
             <button
               onClick={() => setStep(4)}
               disabled={isOverAllocated}
-              className="flex-1 h-14 bg-[#FFFFFF] disabled:bg-[#2E2E2E] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95"
+              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-95 ${
+                !isOverAllocated
+                  ? 'bg-[#FFFFFF] text-[#090909] hover:bg-[#EAEAEA] cursor-pointer'
+                  : 'bg-[#181818] text-[#444444] border border-[#222222] cursor-not-allowed opacity-40'
+              }`}
             >
-              <span>Continue to Categories</span>
-              <ArrowRight size={18} strokeWidth={2.5} />
+              <ArrowRight size={24} strokeWidth={3} />
             </button>
           </div>
         </motion.div>
