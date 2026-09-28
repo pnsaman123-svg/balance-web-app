@@ -573,15 +573,9 @@ export default function OnboardingFlow({ onFinish }) {
         >
           <div className="space-y-5">
             <div>
-              <span className="text-xs font-extrabold text-[#A0A0A0] uppercase tracking-widest">
-                Step 3 of 3
-              </span>
-              <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight mt-1">
+              <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
                 Customize Expense Categories
               </h2>
-              <p className="text-sm text-[#8A8A8A] mt-1.5">
-                Add, remove, or customize categories for each pillar.
-              </p>
             </div>
 
             {/* Category Tab Selector */}
