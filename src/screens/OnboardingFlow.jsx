@@ -396,40 +396,32 @@ export default function OnboardingFlow({ onFinish }) {
               </div>
             </div>
 
-            {/* Ratio Recommendations Below Top Bar */}
-            <div className="space-y-1.5">
-              <span className="text-[10.5px] font-extrabold text-[#777777] uppercase tracking-wider">
-                Recommended Ratios
-              </span>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { name: 'Standard', ratio: '50/30/20', n: 50, w: 30, s: 20 },
-                  { name: 'Essential', ratio: '60/20/20', n: 60, w: 20, s: 20 },
-                  { name: 'Debt Payoff', ratio: '70/20/10', n: 70, w: 20, s: 10 },
-                  { name: 'Growth', ratio: '40/30/30', n: 40, w: 30, s: 30 },
-                ].map((r) => {
-                  const isMatch =
-                    percentAllocations.needs === r.n &&
-                    percentAllocations.wants === r.w &&
-                    percentAllocations.savings === r.s;
-                  return (
-                    <button
-                      key={r.name}
-                      onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
-                      className={`py-2 px-1 rounded-xl text-center transition-all border ${
-                        isMatch
-                          ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
-                          : 'bg-[#141414] text-[#A0A0A0] border-[#222222] hover:bg-[#1A1A1A]'
-                      }`}
-                    >
-                      <div className="text-xs font-bold font-mono">{r.ratio}</div>
-                      <div className={`text-[10px] font-medium ${isMatch ? 'text-[#333333]' : 'text-[#666666]'}`}>
-                        {r.name}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Ratio Presets Below Top Bar */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { ratio: '50/30/20', n: 50, w: 30, s: 20 },
+                { ratio: '60/20/20', n: 60, w: 20, s: 20 },
+                { ratio: '70/20/10', n: 70, w: 20, s: 10 },
+                { ratio: '40/30/30', n: 40, w: 30, s: 30 },
+              ].map((r) => {
+                const isMatch =
+                  percentAllocations.needs === r.n &&
+                  percentAllocations.wants === r.w &&
+                  percentAllocations.savings === r.s;
+                return (
+                  <button
+                    key={r.ratio}
+                    onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
+                    className={`py-2.5 px-1 rounded-xl text-center font-mono font-bold text-xs transition-all border ${
+                      isMatch
+                        ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
+                        : 'bg-[#141414] text-[#8A8A8A] border-[#222222] hover:bg-[#1A1A1A]'
+                    }`}
+                  >
+                    {r.ratio}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Horizontal Range Slider Cards (No Subtext, No -5/+5 buttons) */}
