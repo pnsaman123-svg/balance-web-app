@@ -640,10 +640,10 @@ export default function OnboardingFlow({ onFinish }) {
               <div className="flex justify-center pt-1">
                 <button
                   onClick={() => setIsAddingSub(true)}
-                  className="flex items-center space-x-2 px-5 py-2.5 bg-[#141414] hover:bg-[#1A1A1A] border border-[#242424] rounded-full text-xs font-bold text-[#FFFFFF] transition-all active:scale-95 shadow-md"
+                  className="flex items-center space-x-2 px-6 py-2.5 bg-[#141414] hover:bg-[#1A1A1A] border border-[#242424] rounded-full text-xs font-bold text-[#FFFFFF] transition-all active:scale-95 shadow-md"
                 >
                   <Plus size={15} strokeWidth={2.6} />
-                  <span>Add Category</span>
+                  <span>Add</span>
                 </button>
               </div>
             ) : (
