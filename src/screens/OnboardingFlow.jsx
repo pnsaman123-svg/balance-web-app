@@ -711,8 +711,8 @@ export default function OnboardingFlow({ onFinish }) {
               onClick={handleCompleteAll}
               className="flex-1 h-14 bg-[#FFFFFF] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95"
             >
-              <Check size={18} strokeWidth={3} />
-              <span>Launch Home Dashboard</span>
+              <span>Let's Go</span>
+              <ArrowRight size={18} strokeWidth={2.8} />
             </button>
           </div>
         </motion.div>
