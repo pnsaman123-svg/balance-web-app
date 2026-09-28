@@ -396,10 +396,46 @@ export default function OnboardingFlow({ onFinish }) {
               </div>
             </div>
 
-            {/* Horizontal Range Slider Cards (No Subtext) */}
+            {/* Ratio Recommendations Below Top Bar */}
+            <div className="space-y-1.5">
+              <span className="text-[10.5px] font-extrabold text-[#777777] uppercase tracking-wider">
+                Recommended Ratios
+              </span>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { name: 'Standard', ratio: '50/30/20', n: 50, w: 30, s: 20 },
+                  { name: 'Essential', ratio: '60/20/20', n: 60, w: 20, s: 20 },
+                  { name: 'Debt Payoff', ratio: '70/20/10', n: 70, w: 20, s: 10 },
+                  { name: 'Growth', ratio: '40/30/30', n: 40, w: 30, s: 30 },
+                ].map((r) => {
+                  const isMatch =
+                    percentAllocations.needs === r.n &&
+                    percentAllocations.wants === r.w &&
+                    percentAllocations.savings === r.s;
+                  return (
+                    <button
+                      key={r.name}
+                      onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
+                      className={`py-2 px-1 rounded-xl text-center transition-all border ${
+                        isMatch
+                          ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
+                          : 'bg-[#141414] text-[#A0A0A0] border-[#222222] hover:bg-[#1A1A1A]'
+                      }`}
+                    >
+                      <div className="text-xs font-bold font-mono">{r.ratio}</div>
+                      <div className={`text-[10px] font-medium ${isMatch ? 'text-[#333333]' : 'text-[#666666]'}`}>
+                        {r.name}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Horizontal Range Slider Cards (No Subtext, No -5/+5 buttons) */}
             <div className="space-y-3">
               {/* Needs */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#FFFFFF]" />
@@ -413,7 +449,7 @@ export default function OnboardingFlow({ onFinish }) {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 pt-1">
+                <div className="pt-1">
                   <input
                     type="range"
                     min="0"
@@ -423,27 +459,13 @@ export default function OnboardingFlow({ onFinish }) {
                     onChange={(e) =>
                       setPercentAllocations((prev) => ({ ...prev, needs: Number(e.target.value) }))
                     }
-                    className="flex-1 accent-white h-2 bg-[#222222] rounded-lg cursor-pointer"
+                    className="w-full accent-white h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                  <div className="flex items-center space-x-1 shrink-0">
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, needs: Math.max(0, prev.needs - 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      -5%
-                    </button>
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, needs: Math.min(100, prev.needs + 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      +5%
-                    </button>
-                  </div>
                 </div>
               </div>
 
               {/* Wants */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#8E8E93]" />
@@ -457,7 +479,7 @@ export default function OnboardingFlow({ onFinish }) {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 pt-1">
+                <div className="pt-1">
                   <input
                     type="range"
                     min="0"
@@ -467,27 +489,13 @@ export default function OnboardingFlow({ onFinish }) {
                     onChange={(e) =>
                       setPercentAllocations((prev) => ({ ...prev, wants: Number(e.target.value) }))
                     }
-                    className="flex-1 accent-[#8E8E93] h-2 bg-[#222222] rounded-lg cursor-pointer"
+                    className="w-full accent-[#8E8E93] h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                  <div className="flex items-center space-x-1 shrink-0">
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, wants: Math.max(0, prev.wants - 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      -5%
-                    </button>
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, wants: Math.min(100, prev.wants + 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      +5%
-                    </button>
-                  </div>
                 </div>
               </div>
 
               {/* Savings */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#48484A]" />
@@ -501,7 +509,7 @@ export default function OnboardingFlow({ onFinish }) {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 pt-1">
+                <div className="pt-1">
                   <input
                     type="range"
                     min="0"
@@ -511,22 +519,8 @@ export default function OnboardingFlow({ onFinish }) {
                     onChange={(e) =>
                       setPercentAllocations((prev) => ({ ...prev, savings: Number(e.target.value) }))
                     }
-                    className="flex-1 accent-[#636366] h-2 bg-[#222222] rounded-lg cursor-pointer"
+                    className="w-full accent-[#636366] h-2 bg-[#222222] rounded-lg cursor-pointer"
                   />
-                  <div className="flex items-center space-x-1 shrink-0">
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, savings: Math.max(0, prev.savings - 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      -5%
-                    </button>
-                    <button
-                      onClick={() => setPercentAllocations((prev) => ({ ...prev, savings: Math.min(100, prev.savings + 5) }))}
-                      className="px-2 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[11px] font-bold text-[#A0A0A0]"
-                    >
-                      +5%
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -542,13 +536,7 @@ export default function OnboardingFlow({ onFinish }) {
                   className="px-7 py-3.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-sm rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95"
                 >
                   <Sparkles size={16} />
-                  <span>
-                    Auto Fix (
-                    {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings > 100
-                      ? `+${percentAllocations.needs + percentAllocations.wants + percentAllocations.savings - 100}%`
-                      : `-${100 - (percentAllocations.needs + percentAllocations.wants + percentAllocations.savings)}%`}
-                    )
-                  </span>
+                  <span>Auto Fix</span>
                 </button>
               ) : (
                 <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
