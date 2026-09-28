@@ -216,6 +216,17 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
         isOpen={isAdjustAllocationOpen}
         onClose={() => setIsAdjustAllocationOpen(false)}
       />
+
+      {/* Floating Add Expense Action Button (Bottom Right) */}
+      <motion.button
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        onClick={onOpenAddExpense}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#FFFFFF] text-[#090909] flex items-center justify-center shadow-2xl shadow-white/30 hover:bg-[#F2F2F2] transition-all cursor-pointer"
+        title="Add Expense"
+      >
+        <Plus size={26} strokeWidth={2.8} />
+      </motion.button>
     </div>
   );
 }
