@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shield, Wallet, Layers } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shield, Wallet, Layers, Delete } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 
@@ -8,13 +8,32 @@ export default function OnboardingFlow({ onFinish }) {
   const { currency, completeOnboarding } = useFinance();
 
   const [step, setStep] = useState(1);
+  const [setupIncomeStr, setSetupIncomeStr] = useState('50000');
 
   // Step 2 State: Income Sources
   const [incomeSources, setIncomeSources] = useState([
-    { id: '1', name: 'Primary Salary', amount: '' },
+    { id: '1', name: 'Primary Salary', amount: '50000' },
   ]);
 
-  const totalIncome = incomeSources.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+  const totalIncome = parseFloat(setupIncomeStr || '0') || 0;
+
+  const handleSetupKeypadPress = (val) => {
+    if (val === 'backspace') {
+      setSetupIncomeStr((prev) => (prev.length > 1 ? prev.slice(0, -1) : '0'));
+      return;
+    }
+    if (val === '.') {
+      if (!setupIncomeStr.includes('.')) {
+        setSetupIncomeStr((prev) => prev + '.');
+      }
+      return;
+    }
+    setSetupIncomeStr((prev) => {
+      if (prev === '0') return val;
+      if (prev.length >= 8) return prev;
+      return prev + val;
+    });
+  };
 
   // Step 3 State: Allocation Mode ('amount' | 'percent')
   const [allocationMode, setAllocationMode] = useState('percent');
@@ -257,98 +276,67 @@ export default function OnboardingFlow({ onFinish }) {
         </motion.div>
       )}
 
-      {/* STEP 2: ADD INCOME SOURCES */}
+      {/* STEP 2 (STEP 1 OF 3): CALCULATOR MONTHLY INCOME */}
       {step === 2 && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0 }}
-          className="flex-1 flex flex-col justify-between py-4 space-y-6"
+          className="flex-1 flex flex-col justify-between py-4 select-none"
         >
-          <div className="space-y-5">
-            <div>
-              <span className="text-xs font-extrabold text-[#A0A0A0] uppercase tracking-widest">
-                Step 1 of 3
-              </span>
-              <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight mt-1">
-                How much do you earn each month?
-              </h2>
-              <p className="text-sm text-[#8A8A8A] mt-1.5 leading-relaxed">
-                Add your primary salary and any recurring side income.
-              </p>
-            </div>
+          {/* Top Title Only */}
+          <div>
+            <span className="text-xs font-extrabold text-[#A0A0A0] uppercase tracking-widest block">
+              Step 1 of 3
+            </span>
+            <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight mt-1">
+              What is your monthly income?
+            </h2>
+          </div>
 
-            {/* Income Sources List */}
-            <div className="space-y-3 max-h-[360px] overflow-y-auto no-scrollbar pr-1">
-              {incomeSources.map((source) => (
-                <div
-                  key={source.id}
-                  className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 flex items-center space-x-3"
+          {/* Large Hero Calculator Display */}
+          <div className="flex items-center justify-center py-6">
+            <span className="text-3xl font-bold text-[#8A8A8A] mr-2">{currency}</span>
+            <span className="text-5xl font-black text-[#FFFFFF] font-mono tracking-tight">
+              {parseFloat(setupIncomeStr || '0').toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          {/* 3-Column Calculator Keypad */}
+          <div className="space-y-2.5 max-w-sm mx-auto w-full">
+            <div className="grid grid-cols-3 gap-2.5">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0'].map((k) => (
+                <button
+                  key={k}
+                  onClick={() => handleSetupKeypadPress(k)}
+                  className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#262626] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
                 >
-                  <input
-                    type="text"
-                    value={source.name}
-                    onChange={(e) => handleUpdateSource(source.id, 'name', e.target.value)}
-                    placeholder="Source Name"
-                    className="flex-1 bg-transparent text-sm font-semibold text-[#FFFFFF] placeholder-[#666666] focus:outline-none"
-                  />
-
-                  <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-2">
-                    <span className="text-sm font-mono font-bold text-[#8A8A8A]">{currency}</span>
-                    <input
-                      type="number"
-                      value={source.amount}
-                      onChange={(e) => handleUpdateSource(source.id, 'amount', e.target.value)}
-                      placeholder="0"
-                      className="w-24 bg-transparent text-sm font-mono font-bold text-[#FFFFFF] focus:outline-none text-right"
-                    />
-                  </div>
-
-                  {incomeSources.length > 1 && (
-                    <button
-                      onClick={() => handleDeleteSource(source.id)}
-                      className="p-2 text-[#666666] hover:text-[#FFFFFF] transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
+                  {k}
+                </button>
               ))}
-            </div>
-
-            {/* + Add Income Source Button */}
-            <button
-              onClick={handleAddSource}
-              className="w-full py-3.5 rounded-2xl bg-[#141414] hover:bg-[#1A1A1A] border border-[#262626] text-sm font-bold text-[#FFFFFF] flex items-center justify-center space-x-2 transition-all"
-            >
-              <Plus size={16} />
-              <span>Add Another Income Source</span>
-            </button>
-
-            {/* Total Income Banner */}
-            <div className="bg-[#141414] border border-[#242424] rounded-2xl p-5 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-[#8A8A8A] font-bold uppercase tracking-wider block">Total Monthly Income</span>
-                <span className="text-3xl font-black text-[#FFFFFF] font-mono mt-1 block">
-                  {currency}{totalIncome.toLocaleString('en-IN')}
-                </span>
-              </div>
-              <span className="text-xs font-mono font-bold text-[#D6D6D6] px-3 py-1.5 rounded-full bg-[#0D0D0D] border border-[#242424]">
-                {incomeSources.length} sources
-              </span>
+              <button
+                onClick={() => handleSetupKeypadPress('backspace')}
+                className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#262626] text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+              >
+                <Delete size={22} />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 pt-2">
+          {/* Bottom Navigation */}
+          <div className="flex items-center space-x-3 pt-3">
             <button
               onClick={() => setStep(1)}
-              className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF]"
+              className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF] hover:bg-[#222222] transition-all"
             >
               <ArrowLeft size={18} />
             </button>
 
             <button
-              onClick={() => setStep(3)}
+              onClick={() => {
+                setIncomeSources([{ id: '1', name: 'Primary Salary', amount: setupIncomeStr }]);
+                setStep(3);
+              }}
               disabled={totalIncome <= 0}
               className="flex-1 h-14 bg-[#FFFFFF] disabled:bg-[#333333] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95"
             >
