@@ -299,38 +299,51 @@ export default function OnboardingFlow({ onFinish }) {
             </span>
           </div>
 
-          {/* 3-Column Filled Calculator Keypad */}
+          {/* 3-Column Filled Calculator Keypad (4 Rows) */}
           <div className="space-y-2.5 max-w-sm mx-auto w-full pb-2">
             <div className="grid grid-cols-3 gap-2.5">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0'].map((k) => (
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((k) => (
                 <button
                   key={k}
                   onClick={() => handleSetupKeypadPress(k)}
-                  className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+                  className="h-16 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
                 >
                   {k}
                 </button>
               ))}
+
+              {/* Row 4: Backspace (left to zero) | 0 (center) | Tick Mark (right to zero) */}
               <button
                 onClick={() => handleSetupKeypadPress('backspace')}
-                className="h-15 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+                className="h-16 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
               >
-                <Delete size={22} />
+                <Delete size={24} />
+              </button>
+
+              <button
+                onClick={() => handleSetupKeypadPress('0')}
+                className="h-16 rounded-2xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#222222] text-2xl font-bold text-[#FFFFFF] transition-all active:scale-95 flex items-center justify-center shadow-md"
+              >
+                0
+              </button>
+
+              <button
+                onClick={() => {
+                  if (totalIncome > 0) {
+                    setIncomeSources([{ id: '1', name: 'Primary Salary', amount: setupIncomeStr }]);
+                    setStep(3);
+                  }
+                }}
+                disabled={totalIncome <= 0}
+                className={`h-16 rounded-2xl border transition-all active:scale-95 flex items-center justify-center shadow-lg ${
+                  totalIncome > 0
+                    ? 'bg-[#FFFFFF] text-[#0A0A0A] border-[#FFFFFF] cursor-pointer'
+                    : 'bg-[#121212] text-[#444444] border-[#1E1E1E] cursor-not-allowed opacity-40'
+                }`}
+              >
+                <Check size={26} strokeWidth={3} />
               </button>
             </div>
-
-            {/* Bottom Keypad Action: Full-width Next Key */}
-            <button
-              onClick={() => {
-                setIncomeSources([{ id: '1', name: 'Primary Salary', amount: setupIncomeStr }]);
-                setStep(3);
-              }}
-              disabled={totalIncome <= 0}
-              className="w-full h-14 bg-[#FFFFFF] disabled:bg-[#333333] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95 mt-2"
-            >
-              <span>Next</span>
-              <ArrowRight size={18} strokeWidth={2.5} />
-            </button>
           </div>
         </motion.div>
       )}
