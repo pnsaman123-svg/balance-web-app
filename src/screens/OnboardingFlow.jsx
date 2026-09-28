@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shield, Wallet, Layers, Delete } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shield, Wallet, Layers, Delete, X } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 
@@ -84,6 +84,7 @@ export default function OnboardingFlow({ onFinish }) {
   const [activeSetupCategory, setActiveSetupCategory] = useState('needs');
   const [newSubName, setNewSubName] = useState('');
   const [newSubBudget, setNewSubBudget] = useState('');
+  const [isAddingSub, setIsAddingSub] = useState(false);
 
   // Handle Income updates
   const handleAddSource = () => {
@@ -121,6 +122,7 @@ export default function OnboardingFlow({ onFinish }) {
     }));
     setNewSubName('');
     setNewSubBudget('');
+    setIsAddingSub(false);
   };
 
   const handleUpdateSubBudget = (catKey, subId, newBud) => {
@@ -633,29 +635,68 @@ export default function OnboardingFlow({ onFinish }) {
               ))}
             </div>
 
-            {/* Add New Subcategory inline form */}
-            <div className="bg-[#111111] border border-[#242424] rounded-2xl p-3.5 flex items-center space-x-2.5">
-              <input
-                type="text"
-                placeholder="New subcategory (e.g. Medical)"
-                value={newSubName}
-                onChange={(e) => setNewSubName(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-[#FFFFFF] placeholder-[#666666] focus:outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Budget"
-                value={newSubBudget}
-                onChange={(e) => setNewSubBudget(e.target.value)}
-                className="w-24 bg-[#0D0D0D] border border-[#242424] rounded-xl px-3 py-1.5 text-sm text-[#FFFFFF] font-mono text-right"
-              />
-              <button
-                onClick={handleAddSubcategoryToSetup}
-                className="p-2 rounded-xl bg-[#FFFFFF] text-[#0A0A0A]"
-              >
-                <Plus size={16} strokeWidth={2.8} />
-              </button>
-            </div>
+            {/* Centered Add Category CTA & Expandable Form */}
+            {!isAddingSub ? (
+              <div className="flex justify-center pt-1">
+                <button
+                  onClick={() => setIsAddingSub(true)}
+                  className="flex items-center space-x-2 px-5 py-2.5 bg-[#141414] hover:bg-[#1A1A1A] border border-[#242424] rounded-full text-xs font-bold text-[#FFFFFF] transition-all active:scale-95 shadow-md"
+                >
+                  <Plus size={15} strokeWidth={2.6} />
+                  <span>Add Category</span>
+                </button>
+              </div>
+            ) : (
+              <div className="bg-[#111111] border border-[#242424] rounded-2xl p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#FFFFFF]">
+                    + Add Custom {activeSetupCategory === 'needs' ? 'Need' : activeSetupCategory === 'wants' ? 'Want' : 'Savings'}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setIsAddingSub(false);
+                      setNewSubName('');
+                      setNewSubBudget('');
+                    }}
+                    className="text-[#8A8A8A] hover:text-[#FFFFFF] transition-colors p-1"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="flex items-center space-x-2.5">
+                  <input
+                    type="text"
+                    placeholder="Category name (e.g. Gym, Pet Care)"
+                    value={newSubName}
+                    onChange={(e) => setNewSubName(e.target.value)}
+                    autoFocus
+                    className="flex-1 bg-[#141414] border border-[#242424] rounded-xl px-3 py-2 text-sm text-[#FFFFFF] placeholder-[#666666] focus:outline-none"
+                  />
+                  <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#242424] rounded-xl px-3 py-2">
+                    <span className="text-xs font-mono font-bold text-[#8A8A8A]">{currency}</span>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={newSubBudget}
+                      onChange={(e) => setNewSubBudget(e.target.value)}
+                      className="w-20 bg-transparent text-sm text-[#FFFFFF] font-mono text-right focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddSubcategoryToSetup}
+                    disabled={!newSubName.trim()}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all ${
+                      newSubName.trim()
+                        ? 'bg-[#FFFFFF] text-[#0A0A0A] hover:bg-[#EAEAEA] cursor-pointer'
+                        : 'bg-[#222222] text-[#666666] cursor-not-allowed'
+                    }`}
+                  >
+                    <Plus size={14} strokeWidth={3} />
+                    <span>Add</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-3 pt-2">
