@@ -357,13 +357,11 @@ export default function OnboardingFlow({ onFinish }) {
           className="flex-1 flex flex-col justify-between py-4 space-y-6"
         >
           <div className="space-y-4">
+            {/* Header Title Only (No Subtext) */}
             <div>
               <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
                 Where should your money go?
               </h2>
-              <p className="text-sm text-[#8A8A8A] mt-1">
-                Slide to adjust your budget ratio for {currency}{totalIncome.toLocaleString('en-IN')}.
-              </p>
             </div>
 
             {/* Horizontal Segmented Ratio Visualizer Bar */}
@@ -398,48 +396,20 @@ export default function OnboardingFlow({ onFinish }) {
               </div>
             </div>
 
-            {/* Quick Presets */}
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { name: '50/30/20', n: 50, w: 30, s: 20 },
-                { name: '60/20/20', n: 60, w: 20, s: 20 },
-                { name: '70/20/10', n: 70, w: 20, s: 10 },
-                { name: '40/30/30', n: 40, w: 30, s: 30 },
-              ].map((p) => {
-                const isMatch =
-                  percentAllocations.needs === p.n &&
-                  percentAllocations.wants === p.w &&
-                  percentAllocations.savings === p.s;
-                return (
-                  <button
-                    key={p.name}
-                    onClick={() => setPercentAllocations({ needs: p.n, wants: p.w, savings: p.s })}
-                    className={`py-2 px-1 rounded-xl text-xs font-bold transition-all border ${
-                      isMatch
-                        ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
-                        : 'bg-[#141414] text-[#8A8A8A] border-[#222222] hover:bg-[#1A1A1A]'
-                    }`}
-                  >
-                    {p.name}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Horizontal Range Slider Cards */}
+            {/* Horizontal Range Slider Cards (No Subtext) */}
             <div className="space-y-3">
               {/* Needs */}
               <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#FFFFFF]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Needs (Essentials)</span>
+                    <span className="text-sm font-bold text-[#FFFFFF]">Needs</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-xs text-[#8A8A8A]">
                       {currency}{currentAllocations.needs.toLocaleString('en-IN')}
                     </span>
-                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.needs}%)</span>
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.needs}%</span>
                   </div>
                 </div>
 
@@ -477,13 +447,13 @@ export default function OnboardingFlow({ onFinish }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#8E8E93]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Wants (Lifestyle)</span>
+                    <span className="text-sm font-bold text-[#FFFFFF]">Wants</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-xs text-[#8A8A8A]">
                       {currency}{currentAllocations.wants.toLocaleString('en-IN')}
                     </span>
-                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.wants}%)</span>
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.wants}%</span>
                   </div>
                 </div>
 
@@ -521,13 +491,13 @@ export default function OnboardingFlow({ onFinish }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#48484A]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Savings & Debt</span>
+                    <span className="text-sm font-bold text-[#FFFFFF]">Savings</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-xs text-[#8A8A8A]">
                       {currency}{currentAllocations.savings.toLocaleString('en-IN')}
                     </span>
-                    <span className="text-xs text-[#8A8A8A] ml-2">({percentAllocations.savings}%)</span>
+                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.savings}%</span>
                   </div>
                 </div>
 
@@ -561,40 +531,32 @@ export default function OnboardingFlow({ onFinish }) {
               </div>
             </div>
 
-            {/* Over-allocation or Balanced Status Banner */}
-            {isOverAllocated ? (
-              <div className="bg-[#1F1414] border border-[#442222] rounded-2xl p-3.5 flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2.5">
-                  <AlertCircle size={18} className="text-[#FF6B6B] shrink-0" />
-                  <div>
-                    <span className="font-bold text-[#FFFFFF] block">Over allocated by {currency}{overAmount.toLocaleString('en-IN')}</span>
-                    <span className="text-[11px] text-[#A0A0A0]">Total is {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings}%</span>
-                  </div>
-                </div>
+            {/* Single Centered CTA for Auto-Fix or Balance Status */}
+            <div className="flex justify-center pt-2">
+              {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings !== 100 ? (
                 <button
                   onClick={() => {
                     const rem = Math.max(0, 100 - percentAllocations.needs - percentAllocations.wants);
                     setPercentAllocations((prev) => ({ ...prev, savings: rem }));
                   }}
-                  className="px-3 py-1.5 bg-[#331818] border border-[#662222] rounded-full text-xs font-bold text-[#FF6B6B]"
+                  className="px-7 py-3.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-sm rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95"
                 >
-                  Auto-Fix
-                </button>
-              </div>
-            ) : (
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-[#8A8A8A] block font-bold text-[11px] uppercase">Total Allocation</span>
-                  <span className="text-base font-bold font-mono text-[#FFFFFF]">
-                    {currency}{totalAllocated.toLocaleString('en-IN')} ({percentAllocations.needs + percentAllocations.wants + percentAllocations.savings}%)
+                  <Sparkles size={16} />
+                  <span>
+                    Auto Fix (
+                    {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings > 100
+                      ? `+${percentAllocations.needs + percentAllocations.wants + percentAllocations.savings - 100}%`
+                      : `-${100 - (percentAllocations.needs + percentAllocations.wants + percentAllocations.savings)}%`}
+                    )
                   </span>
+                </button>
+              ) : (
+                <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
+                  <Check size={16} strokeWidth={2.8} />
+                  <span>100% Balanced ({currency}{totalAllocated.toLocaleString('en-IN')})</span>
                 </div>
-                <div className="flex items-center space-x-1.5 bg-[#FFFFFF] text-[#090909] px-3 py-1 rounded-full font-bold text-xs">
-                  <Check size={14} strokeWidth={3} />
-                  <span>Balanced</span>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Navigation Bar with Arrow Continue */}
@@ -608,9 +570,9 @@ export default function OnboardingFlow({ onFinish }) {
 
             <button
               onClick={() => setStep(4)}
-              disabled={isOverAllocated}
+              disabled={percentAllocations.needs + percentAllocations.wants + percentAllocations.savings !== 100}
               className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-95 ${
-                !isOverAllocated
+                percentAllocations.needs + percentAllocations.wants + percentAllocations.savings === 100
                   ? 'bg-[#FFFFFF] text-[#090909] hover:bg-[#EAEAEA] cursor-pointer'
                   : 'bg-[#181818] text-[#444444] border border-[#222222] cursor-not-allowed opacity-40'
               }`}
