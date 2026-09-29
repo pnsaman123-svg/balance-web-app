@@ -91,7 +91,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
       {/* ---------------------------------------------------- */}
       {/* DARK UPPER DASHBOARD SECTION */}
       {/* ---------------------------------------------------- */}
-      <div className="px-5 pt-3 pb-8 space-y-4 bg-[#090909]">
+      <div className="px-5 pt-3 pb-8 space-y-4 bg-[#090909] flex-1 flex flex-col">
         {/* Top Header Row: Month Selector | Slide Switcher (Keypad / Overview) | Avatar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 bg-[#141414] border border-[#242424] px-3 py-1.5 rounded-full text-xs font-bold text-[#FFFFFF]">
@@ -103,7 +103,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
           <div className="flex items-center bg-[#141414] border border-[#242424] p-1 rounded-full space-x-1">
             <button
               onClick={() => setHomeSlide(0)}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 homeSlide === 0
                   ? 'bg-[#FFFFFF] text-[#090909] shadow-sm'
                   : 'text-[#8A8A8A] hover:text-[#FFFFFF]'
@@ -113,7 +113,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             </button>
             <button
               onClick={() => setHomeSlide(1)}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 homeSlide === 1
                   ? 'bg-[#FFFFFF] text-[#090909] shadow-sm'
                   : 'text-[#8A8A8A] hover:text-[#FFFFFF]'
@@ -129,59 +129,62 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
         </div>
 
         {homeSlide === 0 ? (
-          /* SLIDE 1: CENTERED REMAINING BALANCE PILL + BIG NUM PAD EXPENSE ENTRY */
+          /* SLIDE 1: CENTERED REMAINING BALANCE PILL + BOTTOM KEYPAD + CAROUSEL DOTS */
           <motion.div
             key="keypad-slide"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
-            className="space-y-4 pt-1"
+            className="flex-1 flex flex-col justify-between pt-1 pb-16 min-h-[520px]"
           >
-            {/* Centered Remaining Balance Pill */}
-            <div className="flex items-center justify-center">
-              <div className="inline-flex items-center space-x-2 bg-[#141414] border border-[#242424] px-4 py-2 rounded-full shadow-md">
-                <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
-                <span className="text-xs font-bold text-[#FFFFFF]">
-                  {formatCurrency(totalBalance)} Remaining
+            {/* Top Display Section */}
+            <div className="space-y-4">
+              {/* Centered Remaining Balance Pill */}
+              <div className="flex items-center justify-center">
+                <div className="inline-flex items-center space-x-2 bg-[#141414] border border-[#242424] px-4 py-2 rounded-full shadow-md">
+                  <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
+                  <span className="text-xs font-bold text-[#FFFFFF]">
+                    {formatCurrency(totalBalance)} Remaining
+                  </span>
+                </div>
+              </div>
+
+              {/* Big Amount Display */}
+              <div className="flex items-baseline justify-center py-2 space-x-1 text-center">
+                <span className="text-2xl font-bold text-[#8A8A8A]">{currency}</span>
+                <span className="text-5xl font-black text-[#FFFFFF] tracking-tight font-sans">
+                  {parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
                 </span>
+              </div>
+
+              {/* Category Selector Pills */}
+              <div className="flex items-center justify-center space-x-2">
+                {[
+                  { id: 'needs', label: 'Needs' },
+                  { id: 'wants', label: 'Wants' },
+                  { id: 'savings', label: 'Savings' },
+                ].map((cat) => {
+                  const isSel = homeCatId === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setHomeCatId(cat.id)}
+                      className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                        isSel
+                          ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
+                          : 'bg-[#141414] border border-[#242424] text-[#8A8A8A] hover:text-[#FFFFFF]'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Big Amount Display */}
-            <div className="flex items-baseline justify-center py-2 space-x-1 text-center">
-              <span className="text-2xl font-bold text-[#8A8A8A]">{currency}</span>
-              <span className="text-5xl font-black text-[#FFFFFF] tracking-tight font-sans">
-                {parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
-              </span>
-            </div>
-
-            {/* Category Selector Pills */}
-            <div className="flex items-center justify-center space-x-2">
-              {[
-                { id: 'needs', label: 'Needs' },
-                { id: 'wants', label: 'Wants' },
-                { id: 'savings', label: 'Savings' },
-              ].map((cat) => {
-                const isSel = homeCatId === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setHomeCatId(cat.id)}
-                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
-                      isSel
-                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
-                        : 'bg-[#141414] border border-[#242424] text-[#8A8A8A] hover:text-[#FFFFFF]'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Big Number Pad */}
-            <div className="space-y-2 pt-2 max-w-sm mx-auto w-full">
+            {/* Bottom Keypad & Carousel Swipe Dots (Positioned little above nav bar) */}
+            <div className="space-y-3 pt-4 max-w-sm mx-auto w-full">
               <div className="grid grid-cols-3 gap-2.5">
                 {['1', '2', '3'].map((k) => (
                   <button
@@ -245,17 +248,35 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   <Check size={26} strokeWidth={3} />
                 </button>
               </div>
+
+              {/* Carousel Dots Indicator */}
+              <div className="flex items-center justify-center space-x-2 pt-2">
+                <button
+                  onClick={() => setHomeSlide(0)}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                  }`}
+                  aria-label="Keypad Slide"
+                />
+                <button
+                  onClick={() => setHomeSlide(1)}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                  }`}
+                  aria-label="Overview Slide"
+                />
+              </div>
             </div>
           </motion.div>
         ) : (
           /* SLIDE 2: MONTHLY BUDGET & RECENT TRANSACTIONS */
           <motion.div
             key="overview-slide"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="space-y-4"
+            className="space-y-4 pb-20"
           >
             {/* Over Budget Alert Card (if any subcategory is exceeded) */}
             {calculations?.overBudgetSubcategories?.length > 0 && (
@@ -381,6 +402,24 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   ))
                 )}
               </div>
+            </div>
+
+            {/* Carousel Dots Indicator in Overview */}
+            <div className="flex items-center justify-center space-x-2 pt-3">
+              <button
+                onClick={() => setHomeSlide(0)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Keypad Slide"
+              />
+              <button
+                onClick={() => setHomeSlide(1)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Overview Slide"
+              />
             </div>
           </motion.div>
         )}
