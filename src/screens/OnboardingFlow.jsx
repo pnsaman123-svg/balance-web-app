@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shield, Wallet, Layers, Delete, X } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
@@ -8,7 +8,16 @@ export default function OnboardingFlow({ onFinish }) {
   const { currency, completeOnboarding } = useFinance();
 
   const [step, setStep] = useState(1);
+  const [cycleIndex, setCycleIndex] = useState(0); // 0: Spend, 1: Plan, 2: Save
   const [setupIncomeStr, setSetupIncomeStr] = useState('0');
+
+  useEffect(() => {
+    if (step !== 1) return;
+    const timer = setInterval(() => {
+      setCycleIndex((prev) => (prev + 1) % 3);
+    }, 1800);
+    return () => clearInterval(timer);
+  }, [step]);
 
   // Step 2 State: Income Sources
   const [incomeSources, setIncomeSources] = useState([
@@ -228,17 +237,23 @@ export default function OnboardingFlow({ onFinish }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="pt-16 px-8 flex flex-col items-start z-10"
+            className="pt-16 px-8 flex flex-col items-start z-10 space-y-1.5"
           >
-            <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight leading-tight">
-              Plan
-            </span>
-            <span className="text-5xl sm:text-6xl font-black text-[#000000] tracking-wider leading-none my-1.5 font-sans">
-              SPEND
-            </span>
-            <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight leading-tight">
-              Save
-            </span>
+            {['Spend', 'Plan', 'Save'].map((word, idx) => {
+              const isActive = cycleIndex === idx;
+              return (
+                <span
+                  key={word}
+                  className={`transition-all duration-500 origin-left select-none ${
+                    isActive
+                      ? 'text-5xl sm:text-6xl font-extrabold text-[#000000] scale-105 opacity-100 leading-tight'
+                      : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E] scale-95 opacity-40 leading-tight'
+                  }`}
+                >
+                  {word}
+                </span>
+              );
+            })}
           </motion.div>
 
           {/* Soft Atmospheric Monochrome Gradient Rising from the Bottom */}
@@ -249,36 +264,31 @@ export default function OnboardingFlow({ onFinish }) {
             }}
           />
 
-          {/* Content Positioned Over the Lower Gradient Area */}
+          {/* Content Positioned Over the Lower Gradient Area (No badge) */}
           <div className="relative z-10 px-8 pb-8 pt-6 flex flex-col justify-end">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.25, ease: 'easeOut' }}
-              className="space-y-3"
+              className="space-y-2.5"
             >
-              {/* Small Monochrome Icon Badge */}
-              <div className="w-9 h-9 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-[#FFFFFF] shadow-md backdrop-blur-md">
-                <Sparkles size={16} strokeWidth={2.4} />
-              </div>
-
               {/* Large Short Headline */}
               <h1 className="text-3xl sm:text-4xl font-black text-[#FFFFFF] tracking-tight leading-tight">
-                Your money,<br />in balance.
+                Your wealth,<br />in perfect balance.
               </h1>
 
               {/* Small Supporting Description */}
               <p className="text-xs sm:text-sm text-[#B3B3B3] leading-relaxed max-w-xs font-medium">
-                Plan your income, track your spending, and know exactly where your money goes.
+                Master your cash flow with 50/30/20 discipline,<br />track real-time outflows, and achieve clarity.
               </p>
             </motion.div>
 
-            {/* Two Large Rounded CTA Buttons */}
+            {/* Clean Single Primary CTA Button */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.45, ease: 'easeOut' }}
-              className="space-y-2.5 pt-7"
+              className="pt-7"
             >
               {/* Primary: Get Started (Black background, White text) */}
               <button
@@ -289,14 +299,6 @@ export default function OnboardingFlow({ onFinish }) {
                 className="w-full h-14 bg-[#000000] hover:bg-[#1C1C1C] border border-[#333333] text-[#FFFFFF] font-bold text-sm rounded-full flex items-center justify-center transition-all shadow-xl active:scale-[0.98]"
               >
                 Get Started
-              </button>
-
-              {/* Secondary: I already have an account (Very light grey background, Black text) */}
-              <button
-                onClick={handleCompleteAll}
-                className="w-full h-14 bg-[#F0F0F0] hover:bg-[#E5E5E5] text-[#090909] font-bold text-sm rounded-full flex items-center justify-center transition-all active:scale-[0.98]"
-              >
-                I already have an account
               </button>
             </motion.div>
           </div>
