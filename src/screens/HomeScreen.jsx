@@ -134,20 +134,20 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.18 }}
-                  className="flex-1 flex flex-col justify-between space-y-3 w-full"
+                  className="flex-1 flex flex-col justify-end space-y-4 w-full"
                 >
-                  {/* Top Hero Amount Row: Currency Code (USD/INR) on Left + Big Amount on Right */}
-                  <div className="flex items-end justify-between px-1 pt-1">
-                    <span className="text-3xl font-extrabold text-[#71717A] tracking-wide">
+                  {/* Top Hero Amount Row directly right above the numpad */}
+                  <div className="flex items-end justify-between px-1">
+                    <span className="text-4xl font-extrabold text-[#71717A] tracking-wide">
                       {currencyIsoCode}
                     </span>
 
                     <div className="flex items-end space-x-2">
                       <div className="flex items-baseline">
-                        <span className="text-5xl font-black text-[#FFFFFF] tracking-tight font-sans">
+                        <span className="text-5xl md:text-6xl font-black text-[#FFFFFF] tracking-tight font-sans">
                           {splitAmount.intStr}
                         </span>
-                        <span className="text-xl font-bold text-[#8E8E93] ml-0.5">
+                        <span className="text-2xl font-bold text-[#8E8E93] ml-0.5">
                           {splitAmount.decStr}
                         </span>
                       </div>
@@ -155,37 +155,18 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       {homeAmountStr !== '0' && (
                         <button
                           onClick={() => handleKeypadPress('backspace')}
-                          className="p-1.5 mb-1 bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
+                          className="p-2 mb-1 bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
                         >
-                          <Delete size={18} strokeWidth={2.2} />
+                          <Delete size={20} strokeWidth={2.2} />
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* User Profile / Account Banner Card */}
-                  <div
-                    onClick={() => setHomeSlide(1)}
-                    className="bg-[#1A1A1E] border border-[#28282E] rounded-2xl px-4 py-3.5 flex items-center justify-between cursor-pointer hover:border-[#383842] transition-colors"
-                  >
-                    <div>
-                      <h4 className="text-sm font-bold text-[#FFFFFF] leading-tight">
-                        {userName || 'Samantha Jones'}
-                      </h4>
-                      <p className="text-xs text-[#8E8E93] mt-0.5 font-medium">
-                        {transactions.length > 0 ? `${transactions.length} transactions · Active` : '2766 •••• ••••'}
-                      </p>
-                    </div>
-
-                    <div className="w-10 h-10 rounded-xl bg-[#28282E] border border-[#34343C] flex items-center justify-center text-[#FFFFFF]">
-                      <ChevronRight size={18} strokeWidth={2.4} />
-                    </div>
-                  </div>
-
-                  {/* Keypad Container Card with Overlapping Total Balance Pill */}
-                  <div className="bg-[#151518] border border-[#222228] rounded-[28px] px-3 pt-6 pb-3 relative">
+                  {/* Expanded Keypad Container Card with Overlapping Total Balance Pill */}
+                  <div className="bg-[#151518] border border-[#222228] rounded-[32px] px-3.5 pt-7 pb-4 relative mt-2">
                     {/* Total Balance Pill Overlapping Top Edge */}
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-4 py-1.5 rounded-full shadow-lg flex items-center space-x-1 whitespace-nowrap z-10">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-5 py-1.5 rounded-full shadow-lg flex items-center space-x-1 whitespace-nowrap z-10">
                       <span className="text-xs font-medium text-[#000000]">Total Balance:</span>
                       <strong className="text-xs font-extrabold text-[#000000]">
                         {formatCurrency(totalBalance)}
@@ -193,58 +174,58 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                     </div>
 
                     {/* 4x3 Grid of Key Tiles */}
-                    <div className="space-y-2 mt-1">
-                      <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-2.5 mt-1">
+                      <div className="grid grid-cols-3 gap-2.5">
                         {['1', '2', '3'].map((k) => (
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2.5">
                         {['4', '5', '6'].map((k) => (
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2.5">
                         {['7', '8', '9'].map((k) => (
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2.5">
                         <button
                           onClick={() => {
                             if (!homeAmountStr.includes('.')) {
                               setHomeAmountStr(homeAmountStr === '0' ? '0.' : homeAmountStr + '.');
                             }
                           }}
-                          className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         >
                           .
                         </button>
 
                         <button
                           onClick={() => handleKeypadPress('0')}
-                          className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         >
                           0
                         </button>
@@ -257,16 +238,16 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                               handleKeypadPress('backspace');
                             }
                           }}
-                          className={`h-14 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                          className={`h-16 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
                             parseFloat(homeAmountStr || '0') > 0
                               ? 'bg-[#FFFFFF] text-[#000000] hover:bg-[#E5E5E5] active:scale-95'
                               : 'bg-[#222227] border border-[#2A2A30] text-[#71717A] hover:bg-[#2A2A32]'
                           }`}
                         >
                           {parseFloat(homeAmountStr || '0') > 0 ? (
-                            <Check size={26} strokeWidth={3} />
+                            <Check size={28} strokeWidth={3} />
                           ) : (
-                            <Delete size={22} strokeWidth={2.2} />
+                            <Delete size={24} strokeWidth={2.2} />
                           )}
                         </button>
                       </div>
