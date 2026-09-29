@@ -344,8 +344,8 @@ export default function OnboardingFlow({ onFinish }) {
           exit={{ opacity: 0 }}
           className="flex-1 flex flex-col justify-between py-2 select-none"
         >
-          {/* Top Title Only */}
-          <div className="pt-2">
+          {/* Top Title (Center Aligned) */}
+          <div className="pt-2 text-center">
             <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
               Monthly Net Income
             </h2>
@@ -423,10 +423,10 @@ export default function OnboardingFlow({ onFinish }) {
           className="flex-1 flex flex-col justify-between py-4 space-y-6"
         >
           <div className="space-y-4">
-            {/* Header Title Only (No Subtext) */}
-            <div>
+            {/* Header Title Only (Centered) */}
+            <div className="text-center">
               <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
-                Where should your money go?
+                Target Allocation Strategy
               </h2>
             </div>
 
@@ -480,7 +480,7 @@ export default function OnboardingFlow({ onFinish }) {
                     onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
                     className={`py-2.5 px-1 rounded-xl text-center font-mono font-bold text-xs transition-all border ${
                       isMatch
-                        ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF]'
+                        ? 'bg-[rgba(255,255,255,0.12)] text-[#FFFFFF] border-[#FFFFFF] shadow-sm'
                         : 'bg-[#141414] text-[#8A8A8A] border-[#222222] hover:bg-[#1A1A1A]'
                     }`}
                   >
@@ -619,9 +619,8 @@ export default function OnboardingFlow({ onFinish }) {
                 }
 
                 return (
-                  <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
-                    <Check size={16} strokeWidth={2.8} />
-                    <span>100% Balanced ({currency}{totalAllocated.toLocaleString('en-IN')})</span>
+                  <div className="flex items-center justify-center bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
+                    <span>100% Fully Allocated</span>
                   </div>
                 );
               })()}

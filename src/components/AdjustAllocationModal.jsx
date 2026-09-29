@@ -47,10 +47,10 @@ export default function AdjustAllocationModal({ isOpen, onClose }) {
   const savingsAmount = Math.round((totalIncome * percentages.savings) / 100);
 
   const presets = [
-    { label: '50/30/20 (Balanced)', n: 50, w: 30, s: 20 },
-    { label: '60/20/20 (Essentials)', n: 60, w: 20, s: 20 },
-    { label: '70/20/10 (Frugal)', n: 70, w: 20, s: 10 },
-    { label: '40/30/30 (Saver)', n: 40, w: 30, s: 30 },
+    { label: '50/30/20', n: 50, w: 30, s: 20 },
+    { label: '60/20/20', n: 60, w: 20, s: 20 },
+    { label: '70/20/10', n: 70, w: 20, s: 10 },
+    { label: '40/30/30', n: 40, w: 30, s: 30 },
   ];
 
   const handleStep = (catKey, delta) => {
@@ -115,14 +115,13 @@ export default function AdjustAllocationModal({ isOpen, onClose }) {
                         savings: preset.s,
                       })
                     }
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all text-left flex items-center justify-between ${
                       isActive
-                        ? 'bg-[#FFFFFF] text-[#0A0A0A] border-[#FFFFFF]'
+                        ? 'bg-[rgba(255,255,255,0.12)] text-[#FFFFFF] border-[#FFFFFF] shadow-sm'
                         : 'bg-[#1A1A1A] text-[#8A8A8A] border-[#262626] hover:text-[#FFFFFF] hover:border-[#333333]'
                     }`}
                   >
                     <span>{preset.label}</span>
-                    {isActive && <Check size={13} strokeWidth={3} />}
                   </button>
                 );
               })}
@@ -249,9 +248,7 @@ export default function AdjustAllocationModal({ isOpen, onClose }) {
             }`}
           >
             <div className="flex items-center space-x-2">
-              {isBalanced ? (
-                <Check size={14} className="text-[#FFFFFF]" strokeWidth={3} />
-              ) : (
+              {!isBalanced && (
                 <AlertCircle size={14} className="text-[#8A8A8A]" />
               )}
               <span className="font-semibold">
