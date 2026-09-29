@@ -9,7 +9,7 @@ const REEL_WORDS = [];
 for (let i = 0; i < 40; i++) {
   REEL_WORDS.push(...SPLASH_BASE_PATTERN);
 }
-const SPLASH_SLOT_HEIGHT = 56;
+const SPLASH_SLOT_HEIGHT = 66;
 const START_INDEX = 30;
 
 function WebSplashRollingCarousel() {
@@ -27,7 +27,7 @@ function WebSplashRollingCarousel() {
   }, []);
 
   return (
-    <div className="h-[168px] overflow-hidden w-full relative select-none">
+    <div className="h-[198px] overflow-hidden w-full relative select-none">
       <div
         className="w-full transition-transform duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
         style={{
@@ -40,10 +40,10 @@ function WebSplashRollingCarousel() {
           return (
             <div
               key={i}
-              className="h-[56px] flex items-center transition-all duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)] origin-left"
+              className="h-[66px] flex items-center transition-all duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)] origin-left"
               style={{
                 opacity: isCenter ? 1.0 : isAdjacent ? 0.35 : 0,
-                transform: isCenter ? 'scale(1.15)' : isAdjacent ? 'scale(0.9)' : 'scale(0.85)',
+                transform: isCenter ? 'scale(1.08)' : isAdjacent ? 'scale(0.9)' : 'scale(0.85)',
               }}
             >
               <span
