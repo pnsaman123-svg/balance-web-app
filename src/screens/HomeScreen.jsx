@@ -136,37 +136,26 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   transition={{ duration: 0.18 }}
                   className="flex-1 flex flex-col justify-between w-full"
                 >
-                  {/* Centered Area between Top Bar and Num Pad */}
-                  <div className="flex-1 flex items-center justify-center py-4">
-                    <div className="flex items-baseline justify-center space-x-2.5">
-                      <span className="text-3xl md:text-4xl font-extrabold text-[#71717A] tracking-wide">
-                        {currencyIsoCode}
+                  {/* Middle Section: INR on Left & Big Amount on Right (End-to-End Horizontally, Centered Vertically) */}
+                  <div className="flex-1 flex items-center justify-between w-full px-1 py-4">
+                    <span className="text-4xl font-extrabold text-[#71717A] tracking-wide">
+                      {currencyIsoCode}
+                    </span>
+
+                    <div className="flex items-baseline">
+                      <span className="text-5xl md:text-6xl font-black text-[#FFFFFF] tracking-tight font-sans">
+                        {splitAmount.intStr}
                       </span>
-
-                      <div className="flex items-baseline">
-                        <span className="text-5xl md:text-6xl font-black text-[#FFFFFF] tracking-tight font-sans">
-                          {splitAmount.intStr}
-                        </span>
-                        <span className="text-2xl font-bold text-[#8E8E93] ml-0.5">
-                          {splitAmount.decStr}
-                        </span>
-                      </div>
-
-                      {homeAmountStr !== '0' && (
-                        <button
-                          onClick={() => handleKeypadPress('backspace')}
-                          className="p-2 ml-1 self-center bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
-                        >
-                          <Delete size={20} strokeWidth={2.2} />
-                        </button>
-                      )}
+                      <span className="text-2xl font-bold text-[#8E8E93] ml-0.5">
+                        {splitAmount.decStr}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Expanded Keypad Container Card with Overlapping Total Balance Pill */}
-                  <div className="bg-[#151518] border border-[#222228] rounded-[32px] px-3.5 pt-7 pb-4 relative mt-2">
-                    {/* Total Balance Pill Overlapping Top Edge */}
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-5 py-1.5 rounded-full shadow-lg flex items-center space-x-1 whitespace-nowrap z-10">
+                  {/* Expanded Keypad Container Card with Overlapping Total Balance Pill (Pushed Higher) */}
+                  <div className="bg-[#151518] border border-[#222228] rounded-[32px] px-3.5 pt-8 pb-4 relative mt-3">
+                    {/* Total Balance Pill Overlapping Top Edge (Pushed Higher) */}
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-5 py-1.5 rounded-full shadow-xl flex items-center space-x-1 whitespace-nowrap z-20">
                       <span className="text-xs font-medium text-[#000000]">Total Balance:</span>
                       <strong className="text-xs font-extrabold text-[#000000]">
                         {formatCurrency(totalBalance)}
@@ -211,16 +200,13 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                         ))}
                       </div>
 
+                      {/* Row 4: Backspace (in place of .) | 0 | Action Tick */}
                       <div className="grid grid-cols-3 gap-2.5">
                         <button
-                          onClick={() => {
-                            if (!homeAmountStr.includes('.')) {
-                              setHomeAmountStr(homeAmountStr === '0' ? '0.' : homeAmountStr + '.');
-                            }
-                          }}
-                          className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          onClick={() => handleKeypadPress('backspace')}
+                          className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         >
-                          .
+                          <Delete size={26} strokeWidth={2.4} />
                         </button>
 
                         <button
@@ -234,21 +220,16 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                           onClick={() => {
                             if (parseFloat(homeAmountStr || '0') > 0) {
                               handleQuickAddExpense();
-                            } else {
-                              handleKeypadPress('backspace');
                             }
                           }}
+                          disabled={parseFloat(homeAmountStr || '0') <= 0}
                           className={`h-16 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
                             parseFloat(homeAmountStr || '0') > 0
                               ? 'bg-[#FFFFFF] text-[#000000] hover:bg-[#E5E5E5] active:scale-95'
-                              : 'bg-[#222227] border border-[#2A2A30] text-[#71717A] hover:bg-[#2A2A32]'
+                              : 'bg-[#222227] border border-[#2A2A30] text-[#44444A] cursor-not-allowed'
                           }`}
                         >
-                          {parseFloat(homeAmountStr || '0') > 0 ? (
-                            <Check size={28} strokeWidth={3} />
-                          ) : (
-                            <Delete size={24} strokeWidth={2.2} />
-                          )}
+                          <Check size={28} strokeWidth={3} />
                         </button>
                       </div>
                     </div>
