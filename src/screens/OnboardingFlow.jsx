@@ -8,11 +8,11 @@ export default function OnboardingFlow({ onFinish }) {
   const { currency, completeOnboarding } = useFinance();
 
   const [step, setStep] = useState(1);
-  const [setupIncomeStr, setSetupIncomeStr] = useState('50000');
+  const [setupIncomeStr, setSetupIncomeStr] = useState('0');
 
   // Step 2 State: Income Sources
   const [incomeSources, setIncomeSources] = useState([
-    { id: '1', name: 'Primary Salary', amount: '50000' },
+    { id: '1', name: 'Primary Salary', amount: '0' },
   ]);
 
   const totalIncome = parseFloat(setupIncomeStr || '0') || 0;
@@ -282,7 +282,10 @@ export default function OnboardingFlow({ onFinish }) {
             >
               {/* Primary: Get Started (Black background, White text) */}
               <button
-                onClick={() => setStep(2)}
+                onClick={() => {
+                  setSetupIncomeStr('0');
+                  setStep(2);
+                }}
                 className="w-full h-14 bg-[#000000] hover:bg-[#1C1C1C] border border-[#333333] text-[#FFFFFF] font-bold text-sm rounded-full flex items-center justify-center transition-all shadow-xl active:scale-[0.98]"
               >
                 Get Started
