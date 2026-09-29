@@ -69,13 +69,36 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
   const recentTransactions = transactions.slice(0, 5);
   const budgetSpentPercent = totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
 
+  const currencyIsoCode =
+    currency === '₹' ? 'INR' : currency === '$' ? 'USD' : currency === '€' ? 'EUR' : currency === '£' ? 'GBP' : 'USD';
+
+  const getAmountSplit = (rawStr, currencySym) => {
+    const s = rawStr || '0';
+    if (s.includes('.')) {
+      const [intPart, decPart] = s.split('.');
+      const intNum = parseFloat(intPart || '0');
+      return {
+        intStr: `${currencySym}${intNum.toLocaleString('en-IN')}`,
+        decStr: decPart !== undefined ? `.${decPart}` : '.00',
+      };
+    } else {
+      const intNum = parseFloat(s || '0');
+      return {
+        intStr: `${currencySym}${intNum.toLocaleString('en-IN')}`,
+        decStr: '.00',
+      };
+    }
+  };
+
+  const splitAmount = getAmountSplit(homeAmountStr, currency);
+
   return (
     <div className="flex flex-col min-h-screen bg-[#090909] text-[#FFFFFF]">
       {/* ---------------------------------------------------- */}
       {/* DARK UPPER DASHBOARD SECTION */}
       {/* ---------------------------------------------------- */}
-      <div className="px-5 pt-3 pb-8 space-y-4 bg-[#090909] flex-1 flex flex-col">
-        {/* Top Header Row: Month Selector | Avatar (Clean Minimal Header) */}
+      <div className="px-4 pt-3 pb-8 space-y-3 bg-[#090909] flex-1 flex flex-col">
+        {/* Top Header Row: Month Selector | Avatar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 bg-[#141414] border border-[#242424] px-3 py-1.5 rounded-full text-xs font-bold text-[#FFFFFF]">
             <span>{selectedMonth}</span>
@@ -101,52 +124,171 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             }
           }}
         >
-          {/* Upper Transitioning Section: Remaining Balance vs Monthly Budget */}
-          <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full relative overflow-hidden">
+          {/* Main Transitioning Section */}
+          <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full relative overflow-hidden">
             <AnimatePresence mode="wait">
               {homeSlide === 0 ? (
                 <motion.div
-                  key="keypad-top"
+                  key="keypad-slide"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.18 }}
-                  className="space-y-4 w-full"
+                  className="flex-1 flex flex-col justify-between space-y-3 w-full"
                 >
-                  {/* Centered Remaining Balance Pill */}
-                  <div className="flex items-center justify-center">
-                    <div className="inline-flex items-center space-x-2 bg-[#141414] border border-[#242424] px-4 py-2 rounded-full shadow-md">
-                      <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
-                      <span className="text-xs font-bold text-[#FFFFFF]">
-                        {formatCurrency(totalBalance)} Remaining
-                      </span>
+                  {/* Top Hero Amount Row: Currency Code (USD/INR) on Left + Big Amount on Right */}
+                  <div className="flex items-end justify-between px-1 pt-1">
+                    <span className="text-3xl font-extrabold text-[#71717A] tracking-wide">
+                      {currencyIsoCode}
+                    </span>
+
+                    <div className="flex items-end space-x-2">
+                      <div className="flex items-baseline">
+                        <span className="text-5xl font-black text-[#FFFFFF] tracking-tight font-sans">
+                          {splitAmount.intStr}
+                        </span>
+                        <span className="text-xl font-bold text-[#8E8E93] ml-0.5">
+                          {splitAmount.decStr}
+                        </span>
+                      </div>
+
+                      {homeAmountStr !== '0' && (
+                        <button
+                          onClick={() => handleKeypadPress('backspace')}
+                          className="p-1.5 mb-1 bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
+                        >
+                          <Delete size={18} strokeWidth={2.2} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  {/* Big Amount Display */}
-                  <div className="flex items-baseline justify-center py-2 space-x-2 text-center">
-                    <span className="text-3xl font-bold text-[#8A8A8A]">{currency}</span>
-                    <span className="text-6xl md:text-7xl font-black text-[#FFFFFF] tracking-tight font-sans">
-                      {parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
-                    </span>
+                  {/* User Profile / Account Banner Card */}
+                  <div
+                    onClick={() => setHomeSlide(1)}
+                    className="bg-[#1A1A1E] border border-[#28282E] rounded-2xl px-4 py-3.5 flex items-center justify-between cursor-pointer hover:border-[#383842] transition-colors"
+                  >
+                    <div>
+                      <h4 className="text-sm font-bold text-[#FFFFFF] leading-tight">
+                        {userName || 'Samantha Jones'}
+                      </h4>
+                      <p className="text-xs text-[#8E8E93] mt-0.5 font-medium">
+                        {transactions.length > 0 ? `${transactions.length} transactions · Active` : '2766 •••• ••••'}
+                      </p>
+                    </div>
+
+                    <div className="w-10 h-10 rounded-xl bg-[#28282E] border border-[#34343C] flex items-center justify-center text-[#FFFFFF]">
+                      <ChevronRight size={18} strokeWidth={2.4} />
+                    </div>
+                  </div>
+
+                  {/* Keypad Container Card with Overlapping Total Balance Pill */}
+                  <div className="bg-[#151518] border border-[#222228] rounded-[28px] px-3 pt-6 pb-3 relative">
+                    {/* Total Balance Pill Overlapping Top Edge */}
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-4 py-1.5 rounded-full shadow-lg flex items-center space-x-1 whitespace-nowrap z-10">
+                      <span className="text-xs font-medium text-[#000000]">Total Balance:</span>
+                      <strong className="text-xs font-extrabold text-[#000000]">
+                        {formatCurrency(totalBalance)}
+                      </strong>
+                    </div>
+
+                    {/* 4x3 Grid of Key Tiles */}
+                    <div className="space-y-2 mt-1">
+                      <div className="grid grid-cols-3 gap-2">
+                        {['1', '2', '3'].map((k) => (
+                          <button
+                            key={k}
+                            onClick={() => handleKeypadPress(k)}
+                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          >
+                            {k}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        {['4', '5', '6'].map((k) => (
+                          <button
+                            key={k}
+                            onClick={() => handleKeypadPress(k)}
+                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          >
+                            {k}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        {['7', '8', '9'].map((k) => (
+                          <button
+                            key={k}
+                            onClick={() => handleKeypadPress(k)}
+                            className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                          >
+                            {k}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => {
+                            if (!homeAmountStr.includes('.')) {
+                              setHomeAmountStr(homeAmountStr === '0' ? '0.' : homeAmountStr + '.');
+                            }
+                          }}
+                          className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                        >
+                          .
+                        </button>
+
+                        <button
+                          onClick={() => handleKeypadPress('0')}
+                          className="h-14 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                        >
+                          0
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (parseFloat(homeAmountStr || '0') > 0) {
+                              handleQuickAddExpense();
+                            } else {
+                              handleKeypadPress('backspace');
+                            }
+                          }}
+                          className={`h-14 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                            parseFloat(homeAmountStr || '0') > 0
+                              ? 'bg-[#FFFFFF] text-[#000000] hover:bg-[#E5E5E5] active:scale-95'
+                              : 'bg-[#222227] border border-[#2A2A30] text-[#71717A] hover:bg-[#2A2A32]'
+                          }`}
+                        >
+                          {parseFloat(homeAmountStr || '0') > 0 ? (
+                            <Check size={26} strokeWidth={3} />
+                          ) : (
+                            <Delete size={22} strokeWidth={2.2} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               ) : (
                 <motion.div
-                  key="overview-top"
+                  key="overview-slide"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.18 }}
-                  className="w-full"
+                  className="flex-1 flex flex-col justify-between space-y-3 w-full"
                 >
                   {/* Monthly Budget Card */}
-                  <div className="bg-[#141414] border border-[#242424] rounded-3xl p-5 shadow-xl space-y-3">
+                  <div className="bg-[#1A1A1E] border border-[#28282E] rounded-3xl p-5 shadow-xl space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
                         Monthly Budget
                       </span>
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#1F1F1F] text-[#D6D6D6]">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#28282E] text-[#D6D6D6]">
                         {budgetSpentPercent}% used
                       </span>
                     </div>
@@ -164,7 +306,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-[#242424] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[#28282E] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(100, Math.max(5, budgetSpentPercent))}%` }}
@@ -173,115 +315,9 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       />
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
-          {/* 100% FIXED STATIC CAROUSEL DOTS (Never moves across screen during swipe) */}
-          <div className="flex items-center justify-center space-x-2 py-2 shrink-0">
-            <button
-              onClick={() => setHomeSlide(0)}
-              className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-              }`}
-              aria-label="Keypad Slide"
-            />
-            <button
-              onClick={() => setHomeSlide(1)}
-              className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-              }`}
-              aria-label="Overview Slide"
-            />
-          </div>
-
-          {/* Bottom Transitioning Section: Fixed Height 325 Keypad vs Recent Transactions */}
-          <div className="h-[325px] flex flex-col justify-center max-w-sm mx-auto w-full relative overflow-hidden">
-            <AnimatePresence mode="wait">
-              {homeSlide === 0 ? (
-                <motion.div
-                  key="keypad-bottom"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.18 }}
-                  className="h-full flex flex-col justify-center space-y-2.5 w-full"
-                >
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {['1', '2', '3'].map((k) => (
-                      <button
-                        key={k}
-                        onClick={() => handleKeypadPress(k)}
-                        className="h-16 rounded-2xl bg-[#141414] border border-[#242424] text-2xl font-bold text-[#FFFFFF] hover:bg-[#202020] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                      >
-                        {k}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {['4', '5', '6'].map((k) => (
-                      <button
-                        key={k}
-                        onClick={() => handleKeypadPress(k)}
-                        className="h-16 rounded-2xl bg-[#141414] border border-[#242424] text-2xl font-bold text-[#FFFFFF] hover:bg-[#202020] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                      >
-                        {k}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {['7', '8', '9'].map((k) => (
-                      <button
-                        key={k}
-                        onClick={() => handleKeypadPress(k)}
-                        className="h-16 rounded-2xl bg-[#141414] border border-[#242424] text-2xl font-bold text-[#FFFFFF] hover:bg-[#202020] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                      >
-                        {k}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2.5">
-                    <button
-                      onClick={() => handleKeypadPress('backspace')}
-                      className="h-16 rounded-2xl bg-[#141414] border border-[#242424] text-[#FFFFFF] hover:bg-[#202020] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                    >
-                      <Delete size={22} strokeWidth={2.4} />
-                    </button>
-
-                    <button
-                      onClick={() => handleKeypadPress('0')}
-                      className="h-16 rounded-2xl bg-[#141414] border border-[#242424] text-2xl font-bold text-[#FFFFFF] hover:bg-[#202020] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                    >
-                      0
-                    </button>
-
-                    <button
-                      onClick={handleQuickAddExpense}
-                      disabled={parseFloat(homeAmountStr || '0') <= 0}
-                      className={`h-16 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                        parseFloat(homeAmountStr || '0') > 0
-                          ? 'bg-[#FFFFFF] text-[#090909] hover:bg-[#E5E5E5] active:scale-95'
-                          : 'bg-[#161616] border border-[#222222] text-[#444444] cursor-not-allowed opacity-50'
-                      }`}
-                    >
-                      <Check size={26} strokeWidth={3} />
-                    </button>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="overview-bottom"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.18 }}
-                  className="h-full flex flex-col w-full"
-                >
-                  <div className="bg-[#141414] border border-[#242424] rounded-3xl p-4 shadow-xl space-y-3 h-full flex flex-col">
+                  {/* Recent Transactions Card */}
+                  <div className="bg-[#151518] border border-[#222228] rounded-3xl p-4 shadow-xl space-y-3 flex-1 flex flex-col min-h-[300px]">
                     <div className="flex items-center justify-between shrink-0">
                       <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
                         Recent Transactions
@@ -297,7 +333,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                     <div className="space-y-2 overflow-y-auto flex-1 pr-1">
                       {/* Over Budget Alert Card if any */}
                       {calculations?.overBudgetSubcategories?.length > 0 && (
-                        <div className="p-2.5 bg-[#1C1C1C] border border-[#3A2222] rounded-2xl mb-2">
+                        <div className="p-2.5 bg-[#1E1E24] border border-[#3A2222] rounded-2xl mb-2">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center space-x-1.5">
                               <AlertTriangle size={13} className="text-[#FF5C5C]" />
@@ -317,29 +353,26 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       )}
 
                       {recentTransactions.length === 0 ? (
-                        <div className="py-6 text-center text-xs text-[#8A8A8A] bg-[#1C1C1C] rounded-2xl border border-[#282828]">
-                          No transactions recorded for this month.
+                        <div className="py-6 text-center text-xs text-[#8A8A8A] bg-[#1E1E24] rounded-2xl border border-[#282828]">
+                          No transactions recorded for this month
                         </div>
                       ) : (
                         recentTransactions.map((tx) => (
                           <div
                             key={tx.id}
-                            onClick={() => onNavigateTab('budget')}
-                            className="flex items-center justify-between p-2.5 bg-[#1C1C1C] border border-[#282828] rounded-2xl hover:border-[#383838] transition-all cursor-pointer"
+                            onClick={() => onSelectCategoryDetail && onSelectCategoryDetail(tx.categoryId, tx.subcategoryId)}
+                            className="flex items-center justify-between p-2.5 rounded-2xl bg-[#1E1E24] border border-[#2A2A32] hover:border-[#383842] transition-colors cursor-pointer"
                           >
-                            <div className="flex items-center space-x-2.5 min-w-0">
-                              <div className="w-8 h-8 rounded-xl bg-[#242424] flex items-center justify-center shrink-0">
-                                <CategoryIcon iconName={tx.icon} size={14} variant="dark" />
-                              </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-xs font-bold text-[#FFFFFF] truncate">{tx.title}</span>
-                                <span className="text-[10px] text-[#8A8A8A] truncate mt-0.5">
+                            <div className="flex items-center space-x-3">
+                              <CategoryIcon icon={tx.icon} color="#FFFFFF" bgColor="#282830" size={16} />
+                              <div>
+                                <span className="text-xs font-bold text-[#FFFFFF] block">{tx.title}</span>
+                                <span className="text-[10px] text-[#8A8A8A]">
                                   {tx.categoryId === 'needs' ? 'Needs' : tx.categoryId === 'wants' ? 'Wants' : 'Savings'} → {tx.subcategoryName || 'General'}
                                 </span>
                               </div>
                             </div>
-
-                            <span className="text-xs font-bold font-mono text-[#FFFFFF] shrink-0 pl-2">
+                            <span className="text-xs font-mono font-bold text-[#FFFFFF]">
                               − {formatCurrency(tx.amount)}
                             </span>
                           </div>
@@ -350,6 +383,24 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* 100% FIXED STATIC CAROUSEL DOTS */}
+          <div className="flex items-center justify-center space-x-2 py-2 shrink-0">
+            <button
+              onClick={() => setHomeSlide(0)}
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+              }`}
+              aria-label="Keypad Slide"
+            />
+            <button
+              onClick={() => setHomeSlide(1)}
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+              }`}
+              aria-label="Overview Slide"
+            />
           </div>
         </div>
       </div>
