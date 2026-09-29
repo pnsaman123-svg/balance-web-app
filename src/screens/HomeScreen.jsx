@@ -72,26 +72,6 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
   const currencyIsoCode =
     currency === '₹' ? 'INR' : currency === '$' ? 'USD' : currency === '€' ? 'EUR' : currency === '£' ? 'GBP' : 'USD';
 
-  const getAmountSplit = (rawStr, currencySym) => {
-    const s = rawStr || '0';
-    if (s.includes('.')) {
-      const [intPart, decPart] = s.split('.');
-      const intNum = parseFloat(intPart || '0');
-      return {
-        intStr: `${currencySym}${intNum.toLocaleString('en-IN')}`,
-        decStr: decPart !== undefined ? `.${decPart}` : '.00',
-      };
-    } else {
-      const intNum = parseFloat(s || '0');
-      return {
-        intStr: `${currencySym}${intNum.toLocaleString('en-IN')}`,
-        decStr: '.00',
-      };
-    }
-  };
-
-  const splitAmount = getAmountSplit(homeAmountStr, currency);
-
   return (
     <div className="flex flex-col min-h-screen bg-[#090909] text-[#FFFFFF]">
       {/* ---------------------------------------------------- */}
@@ -142,13 +122,15 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       {currencyIsoCode}
                     </span>
 
-                    <div className="flex items-baseline">
+                    <div className="flex items-center">
                       <span className="text-4xl md:text-5xl font-bold text-[#FFFFFF] tracking-tight font-sans">
-                        {splitAmount.intStr}
+                        {currency}{parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xl font-medium text-[#8E8E93] ml-0.5">
-                        {splitAmount.decStr}
-                      </span>
+                      <motion.div
+                        className="w-[3px] h-10 bg-white rounded-full ml-1.5"
+                        animate={{ opacity: [1, 0, 1] }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      />
                     </div>
                   </div>
 

@@ -82,12 +82,6 @@ export default function OnboardingFlow({ onFinish }) {
       setSetupIncomeStr((prev) => (prev && prev.length > 0 ? prev.slice(0, -1) : ''));
       return;
     }
-    if (val === '.') {
-      if (!setupIncomeStr.includes('.')) {
-        setSetupIncomeStr((prev) => (prev ? prev + '.' : '0.'));
-      }
-      return;
-    }
     setSetupIncomeStr((prev) => {
       if (!prev || prev === '0') return val;
       if (prev.length >= 8) return prev;
@@ -359,14 +353,13 @@ export default function OnboardingFlow({ onFinish }) {
 
           {/* Large Hero Calculator Display with Caret */}
           <div className="flex items-center justify-center py-6">
-            <span className="text-3xl font-bold text-[#8A8A8A] mr-2">{currency}</span>
             {setupIncomeStr && (
               <span className="text-5xl font-black text-[#FFFFFF] tracking-tight">
                 {parseFloat(setupIncomeStr).toLocaleString('en-IN')}
               </span>
             )}
             <motion.div
-              className="w-[3px] h-11 bg-white rounded-full ml-1"
+              className="w-[3.5px] h-14 bg-white rounded-full ml-1"
               animate={{ opacity: [1, 0, 1] }}
               transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
             />
