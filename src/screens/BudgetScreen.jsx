@@ -222,25 +222,8 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
                 onClick={() => togglePillar(cat.id)}
                 className="flex items-center justify-between cursor-pointer select-none"
               >
-                <div className="flex items-center space-x-3.5 min-w-0">
-                  {/* Soft Tinted Icon Box */}
-                  <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${pillarColors.bg}`}
-                  >
-                    <CategoryIcon
-                      iconName={cat.id === 'needs' ? 'House' : cat.id === 'wants' ? 'ShoppingBag' : 'ShieldCheck'}
-                      size={20}
-                      variant="dark"
-                    />
-                  </div>
-
-                  {/* Title & Subtitle */}
-                  <div className="min-w-0">
-                    <h2 className="text-base font-bold text-[#FFFFFF]">{cat.name}</h2>
-                    <p className="text-xs text-[#888888] mt-0.5">
-                      {daysLeft}d left • {cat.percentSpent || 0}% spent
-                    </p>
-                  </div>
+                <div className="flex items-center min-w-0">
+                  <h2 className="text-base font-bold text-[#FFFFFF]">{cat.name}</h2>
                 </div>
 
                 {/* Right Amount & Status */}
@@ -277,7 +260,6 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
                   >
                     {cat.subcategories.map((sub) => {
                       const isSubOver = sub.isOverBudget;
-                      const subColors = getSubcategoryColors(sub.icon);
                       const subRemaining = sub.remaining || 0;
                       const subOverAmount = sub.overAmount || 0;
 
@@ -289,18 +271,8 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3 min-w-0">
-                              <div
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${subColors.bg}`}
-                              >
-                                <CategoryIcon iconName={sub.icon} size={17} variant="dark" />
-                              </div>
-                              <div className="min-w-0">
-                                <h3 className="text-sm font-bold text-[#FFFFFF] truncate">{sub.name}</h3>
-                                <p className="text-[11px] text-[#888888] mt-0.5">
-                                  {daysLeft}d left • {sub.actualPercentSpent || sub.percentSpent || 0}% spent
-                                </p>
-                              </div>
+                            <div className="flex items-center min-w-0">
+                              <h3 className="text-sm font-bold text-[#FFFFFF] truncate">{sub.name}</h3>
                             </div>
 
                             <div className="flex flex-col items-end pl-3 shrink-0">

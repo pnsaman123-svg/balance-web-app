@@ -40,21 +40,22 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
 
   // Slide state: 0 = Keypad, 1 = Overview
   const [homeSlide, setHomeSlide] = useState(0);
-  const [homeAmountStr, setHomeAmountStr] = useState('0');
+  const [homeAmountStr, setHomeAmountStr] = useState('');
   const [isAdjustAllocationOpen, setIsAdjustAllocationOpen] = useState(false);
 
   const handleKeypadPress = (val) => {
     if (val === 'backspace') {
       if (homeAmountStr.length <= 1) {
-        setHomeAmountStr('0');
+        setHomeAmountStr('');
       } else {
         setHomeAmountStr(homeAmountStr.slice(0, -1));
       }
     } else {
-      if (homeAmountStr === '0') {
-        setHomeAmountStr(val);
-      } else if (homeAmountStr.length < 9) {
-        setHomeAmountStr(homeAmountStr + val);
+      if (!homeAmountStr && val === '0') {
+        return;
+      }
+      if (homeAmountStr.length < 8) {
+        setHomeAmountStr((prev) => prev + val);
       }
     }
   };
@@ -63,7 +64,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
     const amt = parseFloat(homeAmountStr);
     if (!amt || amt <= 0) return;
     onOpenAddExpense(homeAmountStr);
-    setHomeAmountStr('0');
+    setHomeAmountStr('');
   };
 
   const recentTransactions = transactions.slice(0, 5);
@@ -123,9 +124,11 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                     </span>
 
                     <div className="flex items-center">
-                      <span className="text-4xl md:text-5xl font-bold text-[#FFFFFF] tracking-tight font-sans">
-                        {currency}{parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
-                      </span>
+                      {homeAmountStr ? (
+                        <span className="text-4xl md:text-5xl font-bold text-[#FFFFFF] tracking-tight font-sans">
+                          {currency}{parseFloat(homeAmountStr).toLocaleString('en-IN')}
+                        </span>
+                      ) : null}
                       <motion.div
                         className="w-[3px] h-10 bg-white rounded-full ml-1.5"
                         animate={{ opacity: [1, 0, 1] }}
