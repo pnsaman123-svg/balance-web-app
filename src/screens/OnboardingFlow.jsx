@@ -68,7 +68,7 @@ export default function OnboardingFlow({ onFinish }) {
   const { currency, completeOnboarding } = useFinance();
 
   const [step, setStep] = useState(1);
-  const [setupIncomeStr, setSetupIncomeStr] = useState('0');
+  const [setupIncomeStr, setSetupIncomeStr] = useState('');
 
   // Step 2 State: Income Sources
   const [incomeSources, setIncomeSources] = useState([
@@ -79,17 +79,17 @@ export default function OnboardingFlow({ onFinish }) {
 
   const handleSetupKeypadPress = (val) => {
     if (val === 'backspace') {
-      setSetupIncomeStr((prev) => (prev.length > 1 ? prev.slice(0, -1) : '0'));
+      setSetupIncomeStr((prev) => (prev && prev.length > 0 ? prev.slice(0, -1) : ''));
       return;
     }
     if (val === '.') {
       if (!setupIncomeStr.includes('.')) {
-        setSetupIncomeStr((prev) => prev + '.');
+        setSetupIncomeStr((prev) => (prev ? prev + '.' : '0.'));
       }
       return;
     }
     setSetupIncomeStr((prev) => {
-      if (prev === '0') return val;
+      if (!prev || prev === '0') return val;
       if (prev.length >= 8) return prev;
       return prev + val;
     });
@@ -330,7 +330,7 @@ export default function OnboardingFlow({ onFinish }) {
               {/* Primary: Get Started (Black background, White text) */}
               <button
                 onClick={() => {
-                  setSetupIncomeStr('0');
+                  setSetupIncomeStr('');
                   setStep(2);
                 }}
                 className="w-full h-14 bg-[#000000] hover:bg-[#1C1C1C] border border-[#333333] text-[#FFFFFF] font-bold text-sm rounded-full flex items-center justify-center transition-all shadow-xl active:scale-[0.98]"
@@ -353,16 +353,23 @@ export default function OnboardingFlow({ onFinish }) {
           {/* Top Title Only */}
           <div className="pt-2">
             <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
-              What is your monthly income?
+              Monthly Net Income
             </h2>
           </div>
 
-          {/* Large Hero Calculator Display */}
+          {/* Large Hero Calculator Display with Caret */}
           <div className="flex items-center justify-center py-6">
             <span className="text-3xl font-bold text-[#8A8A8A] mr-2">{currency}</span>
-            <span className="text-5xl font-black text-[#FFFFFF] font-mono tracking-tight">
-              {parseFloat(setupIncomeStr || '0').toLocaleString('en-IN')}
-            </span>
+            {setupIncomeStr && (
+              <span className="text-5xl font-black text-[#FFFFFF] tracking-tight">
+                {parseFloat(setupIncomeStr).toLocaleString('en-IN')}
+              </span>
+            )}
+            <motion.div
+              className="w-[3px] h-11 bg-white rounded-full ml-1"
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+            />
           </div>
 
           {/* 3-Column Filled Calculator Keypad (4 Rows) */}
