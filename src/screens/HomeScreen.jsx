@@ -138,15 +138,15 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                 >
                   {/* Middle Section: INR on Left & Big Amount on Right (End-to-End Horizontally, Centered Vertically) */}
                   <div className="flex-1 flex items-center justify-between w-full px-1 py-4">
-                    <span className="text-4xl font-extrabold text-[#71717A] tracking-wide">
+                    <span className="text-2xl md:text-3xl font-semibold text-[#71717A] tracking-wider">
                       {currencyIsoCode}
                     </span>
 
                     <div className="flex items-baseline">
-                      <span className="text-5xl md:text-6xl font-black text-[#FFFFFF] tracking-tight font-sans">
+                      <span className="text-4xl md:text-5xl font-bold text-[#FFFFFF] tracking-tight font-sans">
                         {splitAmount.intStr}
                       </span>
-                      <span className="text-2xl font-bold text-[#8E8E93] ml-0.5">
+                      <span className="text-xl font-medium text-[#8E8E93] ml-0.5">
                         {splitAmount.decStr}
                       </span>
                     </div>
@@ -156,8 +156,8 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   <div className="bg-[#151518] border border-[#222228] rounded-[32px] px-3.5 pt-8 pb-4 relative mt-3">
                     {/* Total Balance Pill Overlapping Top Edge (Pushed Higher) */}
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-5 py-1.5 rounded-full shadow-xl flex items-center space-x-1 whitespace-nowrap z-20">
-                      <span className="text-xs font-medium text-[#000000]">Total Balance:</span>
-                      <strong className="text-xs font-extrabold text-[#000000]">
+                      <span className="text-xs font-normal text-[#000000]">Total Balance:</span>
+                      <strong className="text-xs font-semibold text-[#000000]">
                         {formatCurrency(totalBalance)}
                       </strong>
                     </div>
@@ -169,7 +169,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-xl font-medium text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
@@ -181,7 +181,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-xl font-medium text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
@@ -193,7 +193,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                           <button
                             key={k}
                             onClick={() => handleKeypadPress(k)}
-                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-2xl font-semibold text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                            className="h-16 rounded-2xl bg-[#222227] border border-[#2A2A30] text-xl font-medium text-[#FFFFFF] hover:bg-[#2A2A32] active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                           >
                             {k}
                           </button>
