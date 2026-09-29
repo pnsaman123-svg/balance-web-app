@@ -4,106 +4,60 @@ import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shie
 import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 
-const SPLASH_WORDS = ['Spend', 'Plan', 'Save'];
+const SPLASH_BASE_PATTERN = ['Spend', 'Save', 'Plan'];
+const REEL_WORDS = [];
+for (let i = 0; i < 40; i++) {
+  REEL_WORDS.push(...SPLASH_BASE_PATTERN);
+}
 const SPLASH_SLOT_HEIGHT = 56;
+const START_INDEX = 30;
 
 function WebSplashRollingCarousel() {
-  const [centerIdx, setCenterIdx] = useState(0); // 0: Spend, 1: Plan, 2: Save
-  const [isRolling, setIsRolling] = useState(false);
+  const [currIndex, setCurrIndex] = useState(START_INDEX);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsRolling(true);
-      setTimeout(() => {
-        setIsRolling(false);
-        setCenterIdx((prev) => (prev + 1) % SPLASH_WORDS.length);
-      }, 550);
-    }, 2000);
+      setCurrIndex((prev) => {
+        const next = prev - 1;
+        return next <= 6 ? START_INDEX + (next % 3) : next;
+      });
+    }, 2200);
 
     return () => clearInterval(interval);
   }, []);
 
-  const wIncoming = SPLASH_WORDS[(centerIdx + 2) % 3];
-  const wTop = SPLASH_WORDS[(centerIdx + 1) % 3];
-  const wCenter = SPLASH_WORDS[centerIdx];
-  const wBottom = SPLASH_WORDS[(centerIdx - 1 + 3) % 3];
-
   return (
     <div className="h-[168px] overflow-hidden w-full relative select-none">
       <div
-        className="w-full"
+        className="w-full transition-transform duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
         style={{
-          transform: isRolling ? 'translateY(0px)' : `translateY(-${SPLASH_SLOT_HEIGHT}px)`,
-          transition: isRolling ? 'transform 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+          transform: `translateY(${-currIndex * SPLASH_SLOT_HEIGHT + SPLASH_SLOT_HEIGHT}px)`,
         }}
       >
-        {/* Pos 0: Incoming above top */}
-        <div
-          className="h-[56px] flex items-center"
-          style={{
-            opacity: isRolling ? 0.35 : 0,
-            transform: isRolling ? 'scale(0.9)' : 'scale(0.85)',
-            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
-            transformOrigin: 'left center',
-          }}
-        >
-          <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight">{wIncoming}</span>
-        </div>
-
-        {/* Pos 1: Top slot -> Center slot (rolling down & becoming bold black) */}
-        <div
-          className="h-[56px] flex items-center"
-          style={{
-            opacity: isRolling ? 1.0 : 0.35,
-            transform: isRolling ? 'scale(1.15)' : 'scale(0.9)',
-            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
-            transformOrigin: 'left center',
-          }}
-        >
-          <span
-            className={`tracking-tight ${
-              isRolling
-                ? 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
-                : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
-            }`}
-          >
-            {wTop}
-          </span>
-        </div>
-
-        {/* Pos 2: Center slot -> Bottom slot (rolling down & becoming muted) */}
-        <div
-          className="h-[56px] flex items-center"
-          style={{
-            opacity: isRolling ? 0.35 : 1.0,
-            transform: isRolling ? 'scale(0.9)' : 'scale(1.15)',
-            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
-            transformOrigin: 'left center',
-          }}
-        >
-          <span
-            className={`tracking-tight ${
-              isRolling
-                ? 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
-                : 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
-            }`}
-          >
-            {wCenter}
-          </span>
-        </div>
-
-        {/* Pos 3: Bottom slot -> Exiting below */}
-        <div
-          className="h-[56px] flex items-center"
-          style={{
-            opacity: isRolling ? 0 : 0.35,
-            transform: isRolling ? 'scale(0.85)' : 'scale(0.9)',
-            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
-            transformOrigin: 'left center',
-          }}
-        >
-          <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight">{wBottom}</span>
-        </div>
+        {REEL_WORDS.map((word, i) => {
+          const isCenter = i === currIndex;
+          const isAdjacent = i === currIndex - 1 || i === currIndex + 1;
+          return (
+            <div
+              key={i}
+              className="h-[56px] flex items-center transition-all duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)] origin-left"
+              style={{
+                opacity: isCenter ? 1.0 : isAdjacent ? 0.35 : 0,
+                transform: isCenter ? 'scale(1.15)' : isAdjacent ? 'scale(0.9)' : 'scale(0.85)',
+              }}
+            >
+              <span
+                className={`tracking-tight ${
+                  isCenter
+                    ? 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
+                    : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
+                }`}
+              >
+                {word}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
