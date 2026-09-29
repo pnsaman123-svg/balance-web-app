@@ -37,7 +37,7 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
   });
 
   const [expandedPillars, setExpandedPillars] = useState({
-    needs: true,
+    needs: false,
     wants: false,
     savings: false,
   });
