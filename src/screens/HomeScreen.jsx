@@ -156,7 +156,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   <div className="bg-[#151518] border border-[#222228] rounded-[32px] px-3.5 pt-8 pb-4 relative mt-3">
                     {/* Total Balance Pill Overlapping Top Edge (Pushed Higher) */}
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#FFFFFF] border-2 border-[#000000] px-5 py-1.5 rounded-full shadow-xl flex items-center space-x-1 whitespace-nowrap z-20">
-                      <span className="text-xs font-normal text-[#000000]">Total Balance:</span>
+                      <span className="text-xs font-normal text-[#000000]">Available Balance:</span>
                       <strong className="text-xs font-semibold text-[#000000]">
                         {formatCurrency(totalBalance)}
                       </strong>
@@ -248,10 +248,10 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   <div className="bg-[#1A1A1E] border border-[#28282E] rounded-3xl p-5 shadow-xl space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
-                        Monthly Budget
+                        MONTHLY ALLOCATION
                       </span>
                       <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#28282E] text-[#D6D6D6]">
-                        {budgetSpentPercent}% used
+                        {budgetSpentPercent}% utilized
                       </span>
                     </div>
 
@@ -261,10 +261,10 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
 
                     <div className="flex items-center justify-between text-xs text-[#8A8A8A] pt-1">
                       <span>
-                        Spent <strong className="text-[#FFFFFF]">{formatCurrency(totalSpent)}</strong>
+                        Outflow <strong className="text-[#FFFFFF]">{formatCurrency(totalSpent)}</strong>
                       </span>
                       <span>
-                        Remaining <strong className="text-[#FFFFFF]">{formatCurrency(totalBalance)}</strong>
+                        Available <strong className="text-[#FFFFFF]">{formatCurrency(totalBalance)}</strong>
                       </span>
                     </div>
 
@@ -282,7 +282,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   <div className="bg-[#151518] border border-[#222228] rounded-3xl p-4 shadow-xl space-y-3 flex-1 flex flex-col min-h-[300px]">
                     <div className="flex items-center justify-between shrink-0">
                       <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
-                        Recent Transactions
+                        ACTIVITY LEDGER
                       </span>
                       <button
                         onClick={() => onNavigateTab('budget')}
@@ -299,7 +299,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center space-x-1.5">
                               <AlertTriangle size={13} className="text-[#FF5C5C]" />
-                              <span className="text-[10px] font-bold text-[#FF5C5C] uppercase">Budget Exceeded</span>
+                              <span className="text-[10px] font-bold text-[#FF5C5C] uppercase">Cap Exceeded</span>
                             </div>
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#3A1414] text-[#FF9999]">
                               {calculations.overBudgetSubcategories.length} Over
@@ -316,7 +316,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
 
                       {recentTransactions.length === 0 ? (
                         <div className="py-6 text-center text-xs text-[#8A8A8A] bg-[#1E1E24] rounded-2xl border border-[#282828]">
-                          No transactions recorded for this month
+                          No activity recorded for this billing cycle
                         </div>
                       ) : (
                         recentTransactions.map((tx) => (
