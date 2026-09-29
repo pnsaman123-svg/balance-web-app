@@ -95,10 +95,10 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
-            className="flex-1 flex flex-col justify-between pt-1 pb-16 min-h-[520px]"
+            className="flex-1 flex flex-col pt-1 pb-16 min-h-[520px]"
           >
-            {/* Top Display Section */}
-            <div className="space-y-6 pt-2">
+            {/* Top Display Section (flex-1 centered) */}
+            <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full space-y-4">
               {/* Centered Remaining Balance Pill */}
               <div className="flex items-center justify-center">
                 <div className="inline-flex items-center space-x-2 bg-[#141414] border border-[#242424] px-4 py-2 rounded-full shadow-md">
@@ -110,7 +110,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
               </div>
 
               {/* Big Amount Display (Increased Font Size) */}
-              <div className="flex items-baseline justify-center py-4 space-x-2 text-center">
+              <div className="flex items-baseline justify-center py-2 space-x-2 text-center">
                 <span className="text-3xl font-bold text-[#8A8A8A]">{currency}</span>
                 <span className="text-6xl md:text-7xl font-black text-[#FFFFFF] tracking-tight font-sans">
                   {parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
@@ -118,26 +118,26 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
               </div>
             </div>
 
-            {/* Bottom Section: Carousel Dots Just Above Num Pad + Big Number Pad */}
-            <div className="space-y-3 pt-4 max-w-sm mx-auto w-full">
-              {/* Carousel Dots Indicator Just Above Num Pad */}
-              <div className="flex items-center justify-center space-x-2 pb-1">
-                <button
-                  onClick={() => setHomeSlide(0)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Keypad Slide"
-                />
-                <button
-                  onClick={() => setHomeSlide(1)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Overview Slide"
-                />
-              </div>
+            {/* Carousel Dots Indicator Just Above Num Pad (Exact Same Vertical Coordinate) */}
+            <div className="flex items-center justify-center space-x-2 py-2 shrink-0">
+              <button
+                onClick={() => setHomeSlide(0)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Keypad Slide"
+              />
+              <button
+                onClick={() => setHomeSlide(1)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Overview Slide"
+              />
+            </div>
 
+            {/* Bottom Section: Fixed Height 325 Keypad */}
+            <div className="h-[325px] flex flex-col justify-center max-w-sm mx-auto w-full space-y-2.5">
               <div className="grid grid-cols-3 gap-2.5">
                 {['1', '2', '3'].map((k) => (
                   <button
@@ -211,10 +211,10 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="flex-1 flex flex-col justify-between pt-1 pb-16 min-h-[520px]"
+            className="flex-1 flex flex-col pt-1 pb-16 min-h-[520px]"
           >
-            {/* Top Section: Monthly Budget Card (Matches top section of Slide 0) */}
-            <div className="pt-2">
+            {/* Top Section: Monthly Budget Card (flex-1 centered) */}
+            <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
               <div className="bg-[#141414] border border-[#242424] rounded-3xl p-5 shadow-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
@@ -249,28 +249,27 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
               </div>
             </div>
 
-            {/* Bottom Section: Carousel Dots (Exact Same Position as Slide 0!) + Recent Transactions */}
-            <div className="space-y-3 pt-4 max-w-sm mx-auto w-full">
-              {/* Carousel Dots Indicator (Exact Same Spot) */}
-              <div className="flex items-center justify-center space-x-2 pb-1">
-                <button
-                  onClick={() => setHomeSlide(0)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Keypad Slide"
-                />
-                <button
-                  onClick={() => setHomeSlide(1)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Overview Slide"
-                />
-              </div>
+            {/* Carousel Dots Indicator Just Above Transactions (Exact Same Vertical Coordinate) */}
+            <div className="flex items-center justify-center space-x-2 py-2 shrink-0">
+              <button
+                onClick={() => setHomeSlide(0)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Keypad Slide"
+              />
+              <button
+                onClick={() => setHomeSlide(1)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                }`}
+                aria-label="Overview Slide"
+              />
+            </div>
 
-              {/* Recent Transactions Card Below Down */}
-              <div className="bg-[#141414] border border-[#242424] rounded-3xl p-4 shadow-xl space-y-3 h-[280px] flex flex-col">
+            {/* Bottom Section: Fixed Height 325 Recent Transactions Card */}
+            <div className="h-[325px] flex flex-col max-w-sm mx-auto w-full">
+              <div className="bg-[#141414] border border-[#242424] rounded-3xl p-4 shadow-xl space-y-3 h-full flex flex-col">
                 <div className="flex items-center justify-between shrink-0">
                   <span className="text-[10px] font-bold text-[#8A8A8A] tracking-wider uppercase">
                     Recent Transactions
