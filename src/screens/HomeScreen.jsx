@@ -134,15 +134,15 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.18 }}
-                  className="flex-1 flex flex-col justify-end space-y-4 w-full"
+                  className="flex-1 flex flex-col justify-between w-full"
                 >
-                  {/* Top Hero Amount Row directly right above the numpad */}
-                  <div className="flex items-end justify-between px-1">
-                    <span className="text-4xl font-extrabold text-[#71717A] tracking-wide">
-                      {currencyIsoCode}
-                    </span>
+                  {/* Centered Area between Top Bar and Num Pad */}
+                  <div className="flex-1 flex items-center justify-center py-4">
+                    <div className="flex items-baseline justify-center space-x-2.5">
+                      <span className="text-3xl md:text-4xl font-extrabold text-[#71717A] tracking-wide">
+                        {currencyIsoCode}
+                      </span>
 
-                    <div className="flex items-end space-x-2">
                       <div className="flex items-baseline">
                         <span className="text-5xl md:text-6xl font-black text-[#FFFFFF] tracking-tight font-sans">
                           {splitAmount.intStr}
@@ -155,7 +155,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                       {homeAmountStr !== '0' && (
                         <button
                           onClick={() => handleKeypadPress('backspace')}
-                          className="p-2 mb-1 bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
+                          className="p-2 ml-1 self-center bg-[#1C1C20] rounded-xl text-[#71717A] hover:text-[#FFFFFF] cursor-pointer transition-colors"
                         >
                           <Delete size={20} strokeWidth={2.2} />
                         </button>
