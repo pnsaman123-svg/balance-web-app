@@ -546,71 +546,119 @@ export default function OnboardingFlow({ onFinish }) {
 
             {/* Single Centered CTA for Auto-Fix or Balance Status */}
             <div className="flex justify-center pt-2">
-              {percentAllocations.needs + percentAllocations.wants + percentAllocations.savings !== 100 ? (
-                <button
-                  onClick={() => {
-                    const rem = Math.max(0, 100 - percentAllocations.needs - percentAllocations.wants);
-                    setPercentAllocations((prev) => ({ ...prev, savings: rem }));
-                  }}
-                  className="px-7 py-3.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-sm rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95"
-                >
-                  <Sparkles size={16} />
-                  <span>Auto Fix</span>
-                </button>
-              ) : (
-                <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
-                  <Check size={16} strokeWidth={2.8} />
-                  <span>100% Balanced ({currency}{totalAllocated.toLocaleString('en-IN')})</span>
-                </div>
-              )}
+              {(() => {
+                const totalPct = percentAllocations.needs + percentAllocations.wants + percentAllocations.savings;
+                const isBalanced = totalPct === 100;
+
+                const autoFixPercentages = (nVal, wVal, sVal) => {
+                  const n = Math.max(0, Math.min(100, Math.round(Number(nVal) || 0)));
+                  const w = Math.max(0, Math.min(100, Math.round(Number(wVal) || 0)));
+                  if (n >= 100) return { needs: 80, wants: 10, savings: 10 };
+                  if (n + w >= 100) {
+                    const adjW = Math.max(5, 100 - n - 5);
+                    const adjS = Math.max(0, 100 - n - adjW);
+                    return { needs: n, wants: adjW, savings: adjS };
+                  }
+                  return { needs: n, wants: w, savings: 100 - n - w };
+                };
+
+                if (!isBalanced) {
+                  return (
+                    <button
+                      onClick={() => {
+                        const fixed = autoFixPercentages(percentAllocations.needs, percentAllocations.wants, percentAllocations.savings);
+                        setPercentAllocations(fixed);
+                      }}
+                      className="px-7 py-3.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs sm:text-sm rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95 cursor-pointer"
+                    >
+                      <Sparkles size={16} />
+                      <span>
+                        Auto Fix to 100% ({totalPct > 100 ? `+${totalPct - 100}% over` : `${100 - totalPct}% left`})
+                      </span>
+                    </button>
+                  );
+                }
+
+                return (
+                  <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
+                    <Check size={16} strokeWidth={2.8} />
+                    <span>100% Balanced ({currency}{totalAllocated.toLocaleString('en-IN')})</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
-          {/* Navigation Bar with Arrow Continue */}
+          {/* Navigation Bar with Highlighted Continue CTA */}
           <div className="flex items-center justify-between pt-2">
             <button
               onClick={() => setStep(2)}
-              className="w-14 h-14 bg-[#141414] border border-[#242424] rounded-full flex items-center justify-center text-[#FFFFFF] hover:bg-[#1C1C1C] transition-all active:scale-95"
+              className="w-14 h-14 bg-[#141414] border border-[#242424] rounded-full flex items-center justify-center text-[#FFFFFF] hover:bg-[#1C1C1C] transition-all active:scale-95 cursor-pointer"
             >
               <ArrowLeft size={20} strokeWidth={2.4} />
             </button>
 
-            <button
-              onClick={() => {
-                const nBud = currentAllocations.needs;
-                const wBud = currentAllocations.wants;
-                const sBud = currentAllocations.savings;
+            {(() => {
+              const totalPct = percentAllocations.needs + percentAllocations.wants + percentAllocations.savings;
+              const isBalanced = totalPct === 100;
 
-                setSubcategories({
-                  needs: [
-                    { id: 'sub-rent', name: 'Rent', budget: Math.round(nBud * 0.4), icon: 'House' },
-                    { id: 'sub-groceries', name: 'Groceries', budget: Math.round(nBud * 0.25), icon: 'ShoppingBasket' },
-                    { id: 'sub-utilities', name: 'Utilities', budget: Math.round(nBud * 0.15), icon: 'Zap' },
-                    { id: 'sub-transport', name: 'Transportation', budget: Math.round(nBud * 0.2), icon: 'Car' },
-                  ],
-                  wants: [
-                    { id: 'sub-dining', name: 'Dining Out', budget: Math.round(wBud * 0.35), icon: 'UtensilsCrossed' },
-                    { id: 'sub-shopping', name: 'Shopping', budget: Math.round(wBud * 0.3), icon: 'ShoppingBag' },
-                    { id: 'sub-subscriptions', name: 'Subscriptions', budget: Math.round(wBud * 0.15), icon: 'Repeat' },
-                    { id: 'sub-leisure', name: 'Leisure', budget: Math.round(wBud * 0.2), icon: 'Gamepad2' },
-                  ],
-                  savings: [
-                    { id: 'sub-emergency', name: 'Emergency Fund', budget: Math.round(sBud * 0.4), icon: 'ShieldCheck' },
-                    { id: 'sub-investments', name: 'Investments', budget: Math.round(sBud * 0.4), icon: 'TrendingUp' },
-                    { id: 'sub-debt', name: 'Debt Repayment', budget: Math.round(sBud * 0.2), icon: 'ArrowDownRight' },
-                  ],
-                });
-                setStep(4);
-              }}
-              disabled={percentAllocations.needs + percentAllocations.wants + percentAllocations.savings !== 100}
-              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-95 ${
-                percentAllocations.needs + percentAllocations.wants + percentAllocations.savings === 100
-                  ? 'bg-[#FFFFFF] text-[#090909] hover:bg-[#EAEAEA] cursor-pointer'
-                  : 'bg-[#181818] text-[#444444] border border-[#222222] cursor-not-allowed opacity-40'
-              }`}
-            >
-              <ArrowRight size={24} strokeWidth={3} />
-            </button>
+              const autoFixPercentages = (nVal, wVal, sVal) => {
+                const n = Math.max(0, Math.min(100, Math.round(Number(nVal) || 0)));
+                const w = Math.max(0, Math.min(100, Math.round(Number(wVal) || 0)));
+                if (n >= 100) return { needs: 80, wants: 10, savings: 10 };
+                if (n + w >= 100) {
+                  const adjW = Math.max(5, 100 - n - 5);
+                  const adjS = Math.max(0, 100 - n - adjW);
+                  return { needs: n, wants: adjW, savings: adjS };
+                }
+                return { needs: n, wants: w, savings: 100 - n - w };
+              };
+
+              return (
+                <button
+                  onClick={() => {
+                    let currentPct = percentAllocations;
+                    if (!isBalanced) {
+                      currentPct = autoFixPercentages(percentAllocations.needs, percentAllocations.wants, percentAllocations.savings);
+                      setPercentAllocations(currentPct);
+                    }
+
+                    const nBud = Math.round((totalIncomeNum * currentPct.needs) / 100);
+                    const wBud = Math.round((totalIncomeNum * currentPct.wants) / 100);
+                    const sBud = Math.round((totalIncomeNum * currentPct.savings) / 100);
+
+                    setSubcategories({
+                      needs: [
+                        { id: 'sub-rent', name: 'Rent', budget: Math.round(nBud * 0.4), icon: 'House' },
+                        { id: 'sub-groceries', name: 'Groceries', budget: Math.round(nBud * 0.25), icon: 'ShoppingBasket' },
+                        { id: 'sub-utilities', name: 'Utilities', budget: Math.round(nBud * 0.15), icon: 'Zap' },
+                        { id: 'sub-transport', name: 'Transportation', budget: Math.round(nBud * 0.2), icon: 'Car' },
+                      ],
+                      wants: [
+                        { id: 'sub-dining', name: 'Dining Out', budget: Math.round(wBud * 0.35), icon: 'UtensilsCrossed' },
+                        { id: 'sub-shopping', name: 'Shopping', budget: Math.round(wBud * 0.3), icon: 'ShoppingBag' },
+                        { id: 'sub-subscriptions', name: 'Subscriptions', budget: Math.round(wBud * 0.15), icon: 'Repeat' },
+                        { id: 'sub-leisure', name: 'Leisure', budget: Math.round(wBud * 0.2), icon: 'Gamepad2' },
+                      ],
+                      savings: [
+                        { id: 'sub-emergency', name: 'Emergency Fund', budget: Math.round(sBud * 0.4), icon: 'ShieldCheck' },
+                        { id: 'sub-investments', name: 'Investments', budget: Math.round(sBud * 0.4), icon: 'TrendingUp' },
+                        { id: 'sub-debt', name: 'Debt Repayment', budget: Math.round(sBud * 0.2), icon: 'ArrowDownRight' },
+                      ],
+                    });
+                    setStep(4);
+                  }}
+                  className={`h-14 px-6 rounded-full flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95 cursor-pointer ${
+                    isBalanced
+                      ? 'bg-[#FFFFFF] text-[#090909] hover:bg-[#EAEAEA]'
+                      : 'bg-[#202020] text-[#FFFFFF] border border-[#303030]'
+                  }`}
+                >
+                  <span className="text-sm font-bold">Continue</span>
+                  <ArrowRight size={18} strokeWidth={3} />
+                </button>
+              );
+            })()}
           </div>
         </motion.div>
       )}
