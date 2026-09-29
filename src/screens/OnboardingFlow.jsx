@@ -9,7 +9,7 @@ const REEL_WORDS = [];
 for (let i = 0; i < 40; i++) {
   REEL_WORDS.push(...SPLASH_BASE_PATTERN);
 }
-const SPLASH_SLOT_HEIGHT = 66;
+const SPLASH_SLOT_HEIGHT = 68;
 const START_INDEX = 30;
 
 function WebSplashRollingCarousel() {
@@ -27,7 +27,7 @@ function WebSplashRollingCarousel() {
   }, []);
 
   return (
-    <div className="h-[198px] overflow-hidden w-full relative select-none">
+    <div className="h-[204px] overflow-hidden w-full relative select-none -mx-2 px-2">
       <div
         className="w-full transition-transform duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
         style={{
@@ -38,23 +38,24 @@ function WebSplashRollingCarousel() {
           const isCenter = i === currIndex;
           const isAdjacent = i === currIndex - 1 || i === currIndex + 1;
           return (
-            <div
-              key={i}
-              className="h-[66px] flex items-center transition-all duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)] origin-left"
-              style={{
-                opacity: isCenter ? 1.0 : isAdjacent ? 0.35 : 0,
-                transform: isCenter ? 'scale(1.08)' : isAdjacent ? 'scale(0.9)' : 'scale(0.85)',
-              }}
-            >
-              <span
-                className={`tracking-tight ${
-                  isCenter
-                    ? 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
-                    : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
-                }`}
+            <div key={i} className="h-[68px] flex items-center">
+              <div
+                className="transition-all duration-600 ease-[cubic-bezier(0.25,0.1,0.25,1)] origin-left px-2 py-1"
+                style={{
+                  opacity: isCenter ? 1.0 : isAdjacent ? 0.35 : 0,
+                  transform: isCenter ? 'scale(1.08)' : isAdjacent ? 'scale(0.9)' : 'scale(0.85)',
+                }}
               >
-                {word}
-              </span>
+                <span
+                  className={`tracking-tight ${
+                    isCenter
+                      ? 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
+                      : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
+                  }`}
+                >
+                  {word}
+                </span>
+              </div>
             </div>
           );
         })}
