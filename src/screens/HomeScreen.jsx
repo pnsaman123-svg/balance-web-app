@@ -36,13 +36,11 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
     transactions,
     userName,
     calculations,
-    addTransaction,
   } = useFinance();
 
   // Slide state: 0 = Keypad, 1 = Overview
   const [homeSlide, setHomeSlide] = useState(0);
   const [homeAmountStr, setHomeAmountStr] = useState('0');
-  const [homeCatId, setHomeCatId] = useState('needs');
   const [isAdjustAllocationOpen, setIsAdjustAllocationOpen] = useState(false);
 
   const handleKeypadPress = (val) => {
@@ -64,22 +62,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
   const handleQuickAddExpense = () => {
     const amt = parseFloat(homeAmountStr);
     if (!amt || amt <= 0) return;
-
-    // Pick first subcategory in category
-    const catObj =
-      homeCatId === 'needs' ? needs : homeCatId === 'wants' ? wants : savings;
-    const firstSub = catObj?.subcategories?.[0];
-
-    addTransaction({
-      title: `${homeCatId.charAt(0).toUpperCase() + homeCatId.slice(1)} Expense`,
-      amount: amt,
-      type: 'expense',
-      categoryId: homeCatId,
-      subcategoryId: firstSub ? firstSub.id : 'general',
-      subcategoryName: firstSub ? firstSub.name : 'General',
-      icon: firstSub ? firstSub.icon : 'ShoppingBag',
-    });
-
+    onOpenAddExpense(homeAmountStr);
     setHomeAmountStr('0');
   };
 
@@ -92,35 +75,11 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
       {/* DARK UPPER DASHBOARD SECTION */}
       {/* ---------------------------------------------------- */}
       <div className="px-5 pt-3 pb-8 space-y-4 bg-[#090909] flex-1 flex flex-col">
-        {/* Top Header Row: Month Selector | Slide Switcher (Keypad / Overview) | Avatar */}
+        {/* Top Header Row: Month Selector | Avatar (Clean Minimal Header) */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 bg-[#141414] border border-[#242424] px-3 py-1.5 rounded-full text-xs font-bold text-[#FFFFFF]">
             <span>{selectedMonth}</span>
             <ChevronDown size={13} className="text-[#8A8A8A]" />
-          </div>
-
-          {/* Segmented Slide Switcher */}
-          <div className="flex items-center bg-[#141414] border border-[#242424] p-1 rounded-full space-x-1">
-            <button
-              onClick={() => setHomeSlide(0)}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                homeSlide === 0
-                  ? 'bg-[#FFFFFF] text-[#090909] shadow-sm'
-                  : 'text-[#8A8A8A] hover:text-[#FFFFFF]'
-              }`}
-            >
-              Keypad
-            </button>
-            <button
-              onClick={() => setHomeSlide(1)}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                homeSlide === 1
-                  ? 'bg-[#FFFFFF] text-[#090909] shadow-sm'
-                  : 'text-[#8A8A8A] hover:text-[#FFFFFF]'
-              }`}
-            >
-              Overview
-            </button>
           </div>
 
           <div className="w-9 h-9 rounded-full bg-[#1C1C1C] border border-[#292929] flex items-center justify-center text-xs font-bold text-[#FFFFFF]">
@@ -129,7 +88,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
         </div>
 
         {homeSlide === 0 ? (
-          /* SLIDE 1: CENTERED REMAINING BALANCE PILL + BOTTOM KEYPAD + CAROUSEL DOTS */
+          /* SLIDE 1: CENTERED REMAINING BALANCE PILL + BOTTOM KEYPAD + CAROUSEL DOTS ABOVE NUMPAD */
           <motion.div
             key="keypad-slide"
             initial={{ opacity: 0, x: -20 }}
@@ -139,7 +98,7 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             className="flex-1 flex flex-col justify-between pt-1 pb-16 min-h-[520px]"
           >
             {/* Top Display Section */}
-            <div className="space-y-4">
+            <div className="space-y-6 pt-2">
               {/* Centered Remaining Balance Pill */}
               <div className="flex items-center justify-center">
                 <div className="inline-flex items-center space-x-2 bg-[#141414] border border-[#242424] px-4 py-2 rounded-full shadow-md">
@@ -151,40 +110,34 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
               </div>
 
               {/* Big Amount Display */}
-              <div className="flex items-baseline justify-center py-2 space-x-1 text-center">
+              <div className="flex items-baseline justify-center py-4 space-x-1 text-center">
                 <span className="text-2xl font-bold text-[#8A8A8A]">{currency}</span>
                 <span className="text-5xl font-black text-[#FFFFFF] tracking-tight font-sans">
                   {parseFloat(homeAmountStr || '0').toLocaleString('en-IN')}
                 </span>
               </div>
-
-              {/* Category Selector Pills */}
-              <div className="flex items-center justify-center space-x-2">
-                {[
-                  { id: 'needs', label: 'Needs' },
-                  { id: 'wants', label: 'Wants' },
-                  { id: 'savings', label: 'Savings' },
-                ].map((cat) => {
-                  const isSel = homeCatId === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => setHomeCatId(cat.id)}
-                      className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                        isSel
-                          ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
-                          : 'bg-[#141414] border border-[#242424] text-[#8A8A8A] hover:text-[#FFFFFF]'
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
-            {/* Bottom Keypad & Carousel Swipe Dots (Positioned little above nav bar) */}
+            {/* Bottom Section: Carousel Dots Just Above Num Pad + Big Number Pad */}
             <div className="space-y-3 pt-4 max-w-sm mx-auto w-full">
+              {/* Carousel Dots Indicator Just Above Num Pad */}
+              <div className="flex items-center justify-center space-x-2 pb-1">
+                <button
+                  onClick={() => setHomeSlide(0)}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                  }`}
+                  aria-label="Keypad Slide"
+                />
+                <button
+                  onClick={() => setHomeSlide(1)}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
+                  }`}
+                  aria-label="Overview Slide"
+                />
+              </div>
+
               <div className="grid grid-cols-3 gap-2.5">
                 {['1', '2', '3'].map((k) => (
                   <button
@@ -247,24 +200,6 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
                 >
                   <Check size={26} strokeWidth={3} />
                 </button>
-              </div>
-
-              {/* Carousel Dots Indicator */}
-              <div className="flex items-center justify-center space-x-2 pt-2">
-                <button
-                  onClick={() => setHomeSlide(0)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 0 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Keypad Slide"
-                />
-                <button
-                  onClick={() => setHomeSlide(1)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    homeSlide === 1 ? 'w-6 bg-[#FFFFFF]' : 'w-1.5 bg-[#333333] hover:bg-[#555555]'
-                  }`}
-                  aria-label="Overview Slide"
-                />
               </div>
             </div>
           </motion.div>
@@ -430,17 +365,6 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
         isOpen={isAdjustAllocationOpen}
         onClose={() => setIsAdjustAllocationOpen(false)}
       />
-
-      {/* Floating Add Expense Action Button (Bottom Right) */}
-      <motion.button
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.92 }}
-        onClick={onOpenAddExpense}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#FFFFFF] text-[#090909] flex items-center justify-center shadow-2xl shadow-white/30 hover:bg-[#F2F2F2] transition-all cursor-pointer"
-        title="Add Expense"
-      >
-        <Plus size={26} strokeWidth={2.8} />
-      </motion.button>
     </div>
   );
 }

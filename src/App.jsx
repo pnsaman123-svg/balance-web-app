@@ -53,6 +53,7 @@ function AppContent() {
   // Navigation State
   const [currentTab, setCurrentTab] = useState('home');
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [prefilledExpenseAmount, setPrefilledExpenseAmount] = useState('');
   const [isAddIncomeOpen, setIsAddIncomeOpen] = useState(false);
   
   // Drilldown states
@@ -69,6 +70,7 @@ function AppContent() {
 
   const handleNavigateTab = (tabId) => {
     setIsAddExpenseOpen(false);
+    setPrefilledExpenseAmount('');
     setSelectedDetailCatId(null);
     setSelectedSubDetail(null);
     setCurrentTab(tabId);
@@ -98,7 +100,10 @@ function AppContent() {
           categoryId={selectedSubDetail.catId}
           subcategoryId={selectedSubDetail.subId}
           onClose={() => setSelectedSubDetail(null)}
-          onOpenAddExpense={() => setIsAddExpenseOpen(true)}
+          onOpenAddExpense={(amt) => {
+            setPrefilledExpenseAmount(amt || '');
+            setIsAddExpenseOpen(true);
+          }}
           onEditTransaction={(tx) => setEditingTransaction(tx)}
         />
       );
@@ -109,7 +114,10 @@ function AppContent() {
         <CategoryDetailView
           categoryId={selectedDetailCatId}
           onClose={() => setSelectedDetailCatId(null)}
-          onOpenAddExpense={() => setIsAddExpenseOpen(true)}
+          onOpenAddExpense={(amt) => {
+            setPrefilledExpenseAmount(amt || '');
+            setIsAddExpenseOpen(true);
+          }}
         />
       );
     }
@@ -117,7 +125,11 @@ function AppContent() {
     if (isAddExpenseOpen) {
       return (
         <AddExpenseScreen
-          onClose={() => setIsAddExpenseOpen(false)}
+          initialAmount={prefilledExpenseAmount}
+          onClose={() => {
+            setIsAddExpenseOpen(false);
+            setPrefilledExpenseAmount('');
+          }}
           onNavigateTab={handleNavigateTab}
         />
       );
@@ -127,7 +139,10 @@ function AppContent() {
       case 'home':
         return (
           <HomeScreen
-            onOpenAddExpense={() => setIsAddExpenseOpen(true)}
+            onOpenAddExpense={(amt) => {
+              setPrefilledExpenseAmount(amt || '');
+              setIsAddExpenseOpen(true);
+            }}
             onOpenAddIncome={() => setIsAddIncomeOpen(true)}
             onNavigateTab={handleNavigateTab}
             onSelectCategoryDetail={(catId) => setSelectedDetailCatId(catId)}

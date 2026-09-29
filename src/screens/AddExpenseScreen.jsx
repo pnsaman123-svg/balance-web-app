@@ -10,12 +10,12 @@ import {
 import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 
-export default function AddExpenseScreen({ onClose }) {
+export default function AddExpenseScreen({ onClose, initialAmount }) {
   const { categories, addTransaction, currency, formatCurrency, calculations } = useFinance();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('needs');
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('sub-groceries');
-  const [amountStr, setAmountStr] = useState('2500');
+  const [amountStr, setAmountStr] = useState(initialAmount && initialAmount !== '0' ? String(initialAmount) : '0');
   const [customTitle, setCustomTitle] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
