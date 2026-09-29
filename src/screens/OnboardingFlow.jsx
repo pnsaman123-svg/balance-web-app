@@ -106,14 +106,21 @@ export default function OnboardingFlow({ onFinish }) {
     }
   };
 
-  // Handle adding subcategory in step 4
+  // Handle adding subcategory in step 4 with budget cap enforcement
   const handleAddSubcategoryToSetup = () => {
-    if (!newSubName.trim() || !newSubBudget) return;
-    const b = parseFloat(newSubBudget) || 0;
+    if (!newSubName.trim()) return;
+    const activeCap = currentAllocations[activeSetupCategory] || 0;
+    const currentSubs = subcategories[activeSetupCategory] || [];
+    const currentSum = currentSubs.reduce((sum, s) => sum + (parseFloat(s.budget) || 0), 0);
+    const remaining = Math.max(0, activeCap - currentSum);
+
+    const entered = parseFloat(newSubBudget) || 0;
+    const finalBudget = Math.min(entered, remaining);
+
     const newSub = {
       id: `sub-${Date.now()}`,
       name: newSubName.trim(),
-      budget: b,
+      budget: finalBudget,
       icon: 'ShoppingBag',
     };
     setSubcategories((prev) => ({
@@ -126,10 +133,25 @@ export default function OnboardingFlow({ onFinish }) {
   };
 
   const handleUpdateSubBudget = (catKey, subId, newBud) => {
+    const activeCap = currentAllocations[catKey] || 0;
+    const currentSubs = subcategories[catKey] || [];
+    const otherSubsSum = currentSubs
+      .filter((s) => s.id !== subId)
+      .reduce((sum, s) => sum + (parseFloat(s.budget) || 0), 0);
+    const maxAllowed = Math.max(0, activeCap - otherSubsSum);
+
+    let finalBud = newBud;
+    if (newBud !== '' && !isNaN(newBud)) {
+      const num = parseFloat(newBud) || 0;
+      if (num > maxAllowed) {
+        finalBud = maxAllowed;
+      }
+    }
+
     setSubcategories((prev) => ({
       ...prev,
       [catKey]: prev[catKey].map((s) =>
-        s.id === subId ? { ...s, budget: parseFloat(newBud) || 0 } : s
+        s.id === subId ? { ...s, budget: finalBud === '' ? '' : parseFloat(finalBud) || 0 } : s
       ),
     }));
   };
@@ -551,7 +573,32 @@ export default function OnboardingFlow({ onFinish }) {
             </button>
 
             <button
-              onClick={() => setStep(4)}
+              onClick={() => {
+                const nBud = currentAllocations.needs;
+                const wBud = currentAllocations.wants;
+                const sBud = currentAllocations.savings;
+
+                setSubcategories({
+                  needs: [
+                    { id: 'sub-rent', name: 'Rent', budget: Math.round(nBud * 0.4), icon: 'House' },
+                    { id: 'sub-groceries', name: 'Groceries', budget: Math.round(nBud * 0.25), icon: 'ShoppingBasket' },
+                    { id: 'sub-utilities', name: 'Utilities', budget: Math.round(nBud * 0.15), icon: 'Zap' },
+                    { id: 'sub-transport', name: 'Transportation', budget: Math.round(nBud * 0.2), icon: 'Car' },
+                  ],
+                  wants: [
+                    { id: 'sub-dining', name: 'Dining Out', budget: Math.round(wBud * 0.35), icon: 'UtensilsCrossed' },
+                    { id: 'sub-shopping', name: 'Shopping', budget: Math.round(wBud * 0.3), icon: 'ShoppingBag' },
+                    { id: 'sub-subscriptions', name: 'Subscriptions', budget: Math.round(wBud * 0.15), icon: 'Repeat' },
+                    { id: 'sub-leisure', name: 'Leisure', budget: Math.round(wBud * 0.2), icon: 'Gamepad2' },
+                  ],
+                  savings: [
+                    { id: 'sub-emergency', name: 'Emergency Fund', budget: Math.round(sBud * 0.4), icon: 'ShieldCheck' },
+                    { id: 'sub-investments', name: 'Investments', budget: Math.round(sBud * 0.4), icon: 'TrendingUp' },
+                    { id: 'sub-debt', name: 'Debt Repayment', budget: Math.round(sBud * 0.2), icon: 'ArrowDownRight' },
+                  ],
+                });
+                setStep(4);
+              }}
               disabled={percentAllocations.needs + percentAllocations.wants + percentAllocations.savings !== 100}
               className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-95 ${
                 percentAllocations.needs + percentAllocations.wants + percentAllocations.savings === 100
@@ -566,157 +613,230 @@ export default function OnboardingFlow({ onFinish }) {
       )}
 
       {/* STEP 4: SUBCATEGORIES SETUP & FINALIZATION */}
-      {step === 4 && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0 }}
-          className="flex-1 flex flex-col justify-between py-4 space-y-6"
-        >
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
-                Customize Expense Categories
-              </h2>
-            </div>
+      {step === 4 && (() => {
+        const activePillarCap = currentAllocations[activeSetupCategory] || 0;
+        const currentSubsList = subcategories[activeSetupCategory] || [];
+        const currentAllocatedTotal = currentSubsList.reduce((sum, s) => sum + (parseFloat(s.budget) || 0), 0);
+        const pillarRemaining = activePillarCap - currentAllocatedTotal;
+        const hasAnyPillarExceeded = ['needs', 'wants', 'savings'].some((cKey) => {
+          const cap = currentAllocations[cKey] || 0;
+          const total = (subcategories[cKey] || []).reduce((sum, s) => sum + (parseFloat(s.budget) || 0), 0);
+          return total > cap;
+        });
 
-            {/* Category Tab Selector */}
-            <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] p-1.5 rounded-2xl">
-              {['needs', 'wants', 'savings'].map((cKey) => (
-                <button
-                  key={cKey}
-                  onClick={() => setActiveSetupCategory(cKey)}
-                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
-                    activeSetupCategory === cKey ? 'bg-[#FFFFFF] text-[#0A0A0A]' : 'text-[#8A8A8A]'
-                  }`}
-                >
-                  {cKey}
-                </button>
-              ))}
-            </div>
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 flex flex-col justify-between py-4 space-y-6"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
+                  Customize Expense Categories
+                </h2>
+              </div>
 
-            {/* Subcategories Editor List */}
-            <div className="space-y-2.5 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
-              {subcategories[activeSetupCategory].map((sub) => (
-                <div
-                  key={sub.id}
-                  className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 flex items-center justify-between"
-                >
-                  <div className="flex items-center space-x-3 flex-1 pr-2">
-                    <CategoryIcon iconName={sub.icon} size={16} variant="dark" />
-                    <input
-                      type="text"
-                      value={sub.name}
-                      onChange={(e) => handleUpdateSubName(activeSetupCategory, sub.id, e.target.value)}
-                      className="bg-transparent text-sm font-semibold text-[#FFFFFF] focus:outline-none flex-1"
-                    />
-                  </div>
+              {/* Category Tab Selector */}
+              <div className="flex items-center space-x-2 bg-[#141414] border border-[#242424] p-1.5 rounded-2xl">
+                {['needs', 'wants', 'savings'].map((cKey) => (
+                  <button
+                    key={cKey}
+                    onClick={() => setActiveSetupCategory(cKey)}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
+                      activeSetupCategory === cKey ? 'bg-[#FFFFFF] text-[#0A0A0A]' : 'text-[#8A8A8A]'
+                    }`}
+                  >
+                    {cKey} ({currency}{Number(currentAllocations[cKey] || 0).toLocaleString('en-IN')})
+                  </button>
+                ))}
+              </div>
 
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-1.5">
-                      <span className="text-xs font-mono font-bold text-[#8A8A8A]">{currency}</span>
+              {/* Active Pillar Allocation Summary & Remaining Budget Card */}
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-[#8A8A8A] tracking-wider uppercase text-[10px]">
+                    {activeSetupCategory} Allocated
+                  </span>
+                  <span
+                    className={`font-bold ${
+                      pillarRemaining === 0
+                        ? 'text-[#FFFFFF]'
+                        : pillarRemaining > 0
+                        ? 'text-[#CCCCCC]'
+                        : 'text-[#FF5C5C]'
+                    }`}
+                  >
+                    {pillarRemaining === 0
+                      ? '✓ 100% Allocated'
+                      : pillarRemaining > 0
+                      ? `${currency}${pillarRemaining.toLocaleString('en-IN')} available`
+                      : `Exceeds by ${currency}${Math.abs(pillarRemaining).toLocaleString('en-IN')}`}
+                  </span>
+                </div>
+
+                <div className="h-2 rounded-full bg-[#222222] overflow-hidden">
+                  <div
+                    style={{
+                      width: `${Math.min(100, Math.max(0, (currentAllocatedTotal / (activePillarCap || 1)) * 100))}%`,
+                    }}
+                    className={`h-full transition-all ${
+                      pillarRemaining < 0 ? 'bg-[#FF5C5C]' : 'bg-[#FFFFFF]'
+                    }`}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-[#8A8A8A] font-semibold">
+                  <span>{currency}{currentAllocatedTotal.toLocaleString('en-IN')} allocated</span>
+                  <span>Limit: {currency}{activePillarCap.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              {/* Subcategories Editor List */}
+              <div className="space-y-2.5 max-h-[260px] overflow-y-auto no-scrollbar pr-1">
+                {currentSubsList.map((sub) => (
+                  <div
+                    key={sub.id}
+                    className="bg-[#141414] border border-[#242424] rounded-2xl p-3.5 flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3 flex-1 pr-2">
+                      <CategoryIcon iconName={sub.icon} size={16} variant="dark" />
                       <input
-                        type="number"
-                        value={sub.budget}
-                        onChange={(e) => handleUpdateSubBudget(activeSetupCategory, sub.id, e.target.value)}
-                        className="w-20 bg-transparent text-sm font-mono font-bold text-[#FFFFFF] focus:outline-none text-right"
+                        type="text"
+                        value={sub.name}
+                        onChange={(e) => handleUpdateSubName(activeSetupCategory, sub.id, e.target.value)}
+                        className="bg-transparent text-sm font-semibold text-[#FFFFFF] focus:outline-none flex-1"
                       />
                     </div>
 
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#222222] rounded-xl px-3 py-1.5">
+                        <span className="text-xs font-mono font-bold text-[#8A8A8A]">{currency}</span>
+                        <input
+                          type="number"
+                          value={sub.budget}
+                          onChange={(e) => handleUpdateSubBudget(activeSetupCategory, sub.id, e.target.value)}
+                          className="w-20 bg-transparent text-sm font-mono font-bold text-[#FFFFFF] focus:outline-none text-right"
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => handleDeleteSubcategoryFromSetup(activeSetupCategory, sub.id)}
+                        className="p-2 text-[#666666] hover:text-[#FFFFFF] transition-colors"
+                        title="Delete category"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Centered Add Category CTA & Expandable Form */}
+              {!isAddingSub ? (
+                <div className="flex justify-center pt-1">
+                  <button
+                    onClick={() => {
+                      if (pillarRemaining <= 0) return;
+                      setNewSubBudget(String(pillarRemaining));
+                      setIsAddingSub(true);
+                    }}
+                    disabled={pillarRemaining <= 0}
+                    className={`flex items-center space-x-2 px-6 py-2.5 border rounded-full text-xs font-bold transition-all ${
+                      pillarRemaining > 0
+                        ? 'bg-[#141414] hover:bg-[#1A1A1A] border-[#242424] text-[#FFFFFF] active:scale-95 shadow-md cursor-pointer'
+                        : 'bg-[#121212] border-[#1C1C1C] text-[#555555] cursor-not-allowed opacity-60'
+                    }`}
+                  >
+                    <Plus size={15} strokeWidth={2.6} />
+                    <span>{pillarRemaining <= 0 ? 'Pillar Budget Full' : 'Add'}</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-[#111111] border border-[#242424] rounded-2xl p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#FFFFFF]">
+                      + Add Custom {activeSetupCategory === 'needs' ? 'Need' : activeSetupCategory === 'wants' ? 'Want' : 'Savings'} (Max {currency}{pillarRemaining.toLocaleString('en-IN')})
+                    </span>
                     <button
-                      onClick={() => handleDeleteSubcategoryFromSetup(activeSetupCategory, sub.id)}
-                      className="p-2 text-[#666666] hover:text-[#FFFFFF] transition-colors"
-                      title="Delete category"
+                      onClick={() => {
+                        setIsAddingSub(false);
+                        setNewSubName('');
+                        setNewSubBudget('');
+                      }}
+                      className="text-[#8A8A8A] hover:text-[#FFFFFF] transition-colors p-1"
                     >
-                      <Trash2 size={16} />
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-2.5">
+                    <input
+                      type="text"
+                      placeholder="Category name (e.g. Gym, Pet Care)"
+                      value={newSubName}
+                      onChange={(e) => setNewSubName(e.target.value)}
+                      autoFocus
+                      className="flex-1 bg-[#141414] border border-[#242424] rounded-xl px-3 py-2 text-sm text-[#FFFFFF] placeholder-[#666666] focus:outline-none"
+                    />
+                    <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#242424] rounded-xl px-3 py-2">
+                      <span className="text-xs font-mono font-bold text-[#8A8A8A]">{currency}</span>
+                      <input
+                        type="number"
+                        placeholder={String(pillarRemaining)}
+                        value={newSubBudget}
+                        onChange={(e) => {
+                          const num = parseFloat(e.target.value) || 0;
+                          if (num > pillarRemaining) {
+                            setNewSubBudget(String(pillarRemaining));
+                          } else {
+                            setNewSubBudget(e.target.value);
+                          }
+                        }}
+                        className="w-20 bg-transparent text-sm text-[#FFFFFF] font-mono text-right focus:outline-none"
+                      />
+                    </div>
+                    <button
+                      onClick={handleAddSubcategoryToSetup}
+                      disabled={!newSubName.trim() || pillarRemaining <= 0}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all ${
+                        newSubName.trim() && pillarRemaining > 0
+                          ? 'bg-[#FFFFFF] text-[#0A0A0A] hover:bg-[#EAEAEA] cursor-pointer'
+                          : 'bg-[#222222] text-[#666666] cursor-not-allowed'
+                      }`}
+                    >
+                      <Plus size={14} strokeWidth={3} />
+                      <span>Add</span>
                     </button>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
 
-            {/* Centered Add Category CTA & Expandable Form */}
-            {!isAddingSub ? (
-              <div className="flex justify-center pt-1">
-                <button
-                  onClick={() => setIsAddingSub(true)}
-                  className="flex items-center space-x-2 px-6 py-2.5 bg-[#141414] hover:bg-[#1A1A1A] border border-[#242424] rounded-full text-xs font-bold text-[#FFFFFF] transition-all active:scale-95 shadow-md"
-                >
-                  <Plus size={15} strokeWidth={2.6} />
-                  <span>Add</span>
-                </button>
-              </div>
-            ) : (
-              <div className="bg-[#111111] border border-[#242424] rounded-2xl p-3.5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#FFFFFF]">
-                    + Add Custom {activeSetupCategory === 'needs' ? 'Need' : activeSetupCategory === 'wants' ? 'Want' : 'Savings'}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setIsAddingSub(false);
-                      setNewSubName('');
-                      setNewSubBudget('');
-                    }}
-                    className="text-[#8A8A8A] hover:text-[#FFFFFF] transition-colors p-1"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="flex items-center space-x-2.5">
-                  <input
-                    type="text"
-                    placeholder="Category name (e.g. Gym, Pet Care)"
-                    value={newSubName}
-                    onChange={(e) => setNewSubName(e.target.value)}
-                    autoFocus
-                    className="flex-1 bg-[#141414] border border-[#242424] rounded-xl px-3 py-2 text-sm text-[#FFFFFF] placeholder-[#666666] focus:outline-none"
-                  />
-                  <div className="flex items-center space-x-1.5 bg-[#0D0D0D] border border-[#242424] rounded-xl px-3 py-2">
-                    <span className="text-xs font-mono font-bold text-[#8A8A8A]">{currency}</span>
-                    <input
-                      type="number"
-                      placeholder="0"
-                      value={newSubBudget}
-                      onChange={(e) => setNewSubBudget(e.target.value)}
-                      className="w-20 bg-transparent text-sm text-[#FFFFFF] font-mono text-right focus:outline-none"
-                    />
-                  </div>
-                  <button
-                    onClick={handleAddSubcategoryToSetup}
-                    disabled={!newSubName.trim()}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all ${
-                      newSubName.trim()
-                        ? 'bg-[#FFFFFF] text-[#0A0A0A] hover:bg-[#EAEAEA] cursor-pointer'
-                        : 'bg-[#222222] text-[#666666] cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus size={14} strokeWidth={3} />
-                    <span>Add</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+            <div className="flex items-center space-x-3 pt-2">
+              <button
+                onClick={() => setStep(3)}
+                className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF] hover:bg-[#202020] transition-all active:scale-95"
+              >
+                <ArrowLeft size={18} />
+              </button>
 
-          <div className="flex items-center space-x-3 pt-2">
-            <button
-              onClick={() => setStep(3)}
-              className="w-14 h-14 bg-[#161616] border border-[#242424] rounded-2xl flex items-center justify-center text-[#FFFFFF]"
-            >
-              <ArrowLeft size={18} />
-            </button>
-
-            <button
-              onClick={handleCompleteAll}
-              className="flex-1 h-14 bg-[#FFFFFF] text-[#0A0A0A] font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95"
-            >
-              <span>Let's Go</span>
-              <ArrowRight size={18} strokeWidth={2.8} />
-            </button>
-          </div>
-        </motion.div>
-      )}
+              <button
+                onClick={handleCompleteAll}
+                disabled={hasAnyPillarExceeded}
+                className={`flex-1 h-14 font-bold text-base rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl active:scale-95 ${
+                  !hasAnyPillarExceeded
+                    ? 'bg-[#FFFFFF] text-[#0A0A0A] hover:bg-[#EAEAEA] cursor-pointer'
+                    : 'bg-[#181818] text-[#555555] border border-[#222222] cursor-not-allowed opacity-50'
+                }`}
+              >
+                <span>Let's Go</span>
+                <ArrowRight size={18} strokeWidth={2.8} />
+              </button>
+            </div>
+          </motion.div>
+        );
+      })()}
     </div>
   );
 }
