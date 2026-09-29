@@ -4,20 +4,116 @@ import { ArrowRight, ArrowLeft, Plus, Trash2, Check, AlertCircle, Sparkles, Shie
 import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 
+const SPLASH_WORDS = ['Spend', 'Plan', 'Save'];
+const SPLASH_SLOT_HEIGHT = 56;
+
+function WebSplashRollingCarousel() {
+  const [centerIdx, setCenterIdx] = useState(0); // 0: Spend, 1: Plan, 2: Save
+  const [isRolling, setIsRolling] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsRolling(true);
+      setTimeout(() => {
+        setIsRolling(false);
+        setCenterIdx((prev) => (prev + 1) % SPLASH_WORDS.length);
+      }, 550);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const wIncoming = SPLASH_WORDS[(centerIdx + 2) % 3];
+  const wTop = SPLASH_WORDS[(centerIdx + 1) % 3];
+  const wCenter = SPLASH_WORDS[centerIdx];
+  const wBottom = SPLASH_WORDS[(centerIdx - 1 + 3) % 3];
+
+  return (
+    <div className="h-[168px] overflow-hidden w-full relative select-none">
+      <div
+        className="w-full"
+        style={{
+          transform: isRolling ? 'translateY(0px)' : `translateY(-${SPLASH_SLOT_HEIGHT}px)`,
+          transition: isRolling ? 'transform 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+        }}
+      >
+        {/* Pos 0: Incoming above top */}
+        <div
+          className="h-[56px] flex items-center"
+          style={{
+            opacity: isRolling ? 0.35 : 0,
+            transform: isRolling ? 'scale(0.9)' : 'scale(0.85)',
+            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+            transformOrigin: 'left center',
+          }}
+        >
+          <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight">{wIncoming}</span>
+        </div>
+
+        {/* Pos 1: Top slot -> Center slot (rolling down & becoming bold black) */}
+        <div
+          className="h-[56px] flex items-center"
+          style={{
+            opacity: isRolling ? 1.0 : 0.35,
+            transform: isRolling ? 'scale(1.15)' : 'scale(0.9)',
+            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+            transformOrigin: 'left center',
+          }}
+        >
+          <span
+            className={`tracking-tight ${
+              isRolling
+                ? 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
+                : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
+            }`}
+          >
+            {wTop}
+          </span>
+        </div>
+
+        {/* Pos 2: Center slot -> Bottom slot (rolling down & becoming muted) */}
+        <div
+          className="h-[56px] flex items-center"
+          style={{
+            opacity: isRolling ? 0.35 : 1.0,
+            transform: isRolling ? 'scale(0.9)' : 'scale(1.15)',
+            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+            transformOrigin: 'left center',
+          }}
+        >
+          <span
+            className={`tracking-tight ${
+              isRolling
+                ? 'text-3xl sm:text-4xl font-normal text-[#9E9E9E]'
+                : 'text-4xl sm:text-5xl font-extrabold text-[#000000]'
+            }`}
+          >
+            {wCenter}
+          </span>
+        </div>
+
+        {/* Pos 3: Bottom slot -> Exiting below */}
+        <div
+          className="h-[56px] flex items-center"
+          style={{
+            opacity: isRolling ? 0 : 0.35,
+            transform: isRolling ? 'scale(0.85)' : 'scale(0.9)',
+            transition: isRolling ? 'all 550ms cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+            transformOrigin: 'left center',
+          }}
+        >
+          <span className="text-3xl sm:text-4xl font-normal text-[#9E9E9E] tracking-tight">{wBottom}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function OnboardingFlow({ onFinish }) {
   const { currency, completeOnboarding } = useFinance();
 
   const [step, setStep] = useState(1);
-  const [cycleIndex, setCycleIndex] = useState(0); // 0: Spend, 1: Plan, 2: Save
   const [setupIncomeStr, setSetupIncomeStr] = useState('0');
-
-  useEffect(() => {
-    if (step !== 1) return;
-    const timer = setInterval(() => {
-      setCycleIndex((prev) => (prev + 1) % 3);
-    }, 1800);
-    return () => clearInterval(timer);
-  }, [step]);
 
   // Step 2 State: Income Sources
   const [incomeSources, setIncomeSources] = useState([
@@ -237,23 +333,9 @@ export default function OnboardingFlow({ onFinish }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="pt-16 px-8 flex flex-col items-start z-10 space-y-1.5"
+            className="pt-16 px-8 flex flex-col items-start z-10 w-full"
           >
-            {['Spend', 'Plan', 'Save'].map((word, idx) => {
-              const isActive = cycleIndex === idx;
-              return (
-                <span
-                  key={word}
-                  className={`transition-all duration-500 origin-left select-none ${
-                    isActive
-                      ? 'text-5xl sm:text-6xl font-extrabold text-[#000000] scale-105 opacity-100 leading-tight'
-                      : 'text-3xl sm:text-4xl font-normal text-[#9E9E9E] scale-95 opacity-40 leading-tight'
-                  }`}
-                >
-                  {word}
-                </span>
-              );
-            })}
+            <WebSplashRollingCarousel />
           </motion.div>
 
           {/* Soft Atmospheric Monochrome Gradient Rising from the Bottom */}
