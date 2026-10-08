@@ -7,23 +7,23 @@ import {
   Play,
   Pause,
   RotateCcw,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 
-const GRID_SIZE = 14;
+const GRID_COLS = 16;
+const GRID_ROWS = 22;
 
 export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
+  const startX = Math.floor(GRID_COLS / 2);
+  const startY = Math.floor(GRID_ROWS / 2);
+
   const [snake, setSnake] = useState([
-    { x: 7, y: 7 },
-    { x: 7, y: 8 },
-    { x: 7, y: 9 },
+    { x: startX, y: startY },
+    { x: startX, y: startY + 1 },
+    { x: startX, y: startY + 2 },
   ]);
   const [direction, setDirection] = useState('UP');
   const nextDirRef = useRef('UP');
-  const [food, setFood] = useState({ x: 7, y: 3 });
+  const [food, setFood] = useState({ x: startX, y: Math.max(2, startY - 5) });
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try {
@@ -33,38 +33,41 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
     }
   });
   const [gameState, setGameState] = useState('IDLE'); // 'IDLE' | 'PLAYING' | 'PAUSED' | 'GAME_OVER'
-  const [speed, setSpeed] = useState(130);
+  const [speed, setSpeed] = useState(125);
+
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   const getRandomFood = (currentSnake) => {
     let newFood;
-    while (true) {
+    let attempts = 0;
+    while (attempts < 200) {
       newFood = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE),
+        x: Math.floor(Math.random() * GRID_COLS),
+        y: Math.floor(Math.random() * GRID_ROWS),
       };
       const collides = currentSnake.some((s) => s.x === newFood.x && s.y === newFood.y);
-      if (!collides) break;
+      if (!collides) return newFood;
+      attempts++;
     }
-    return newFood;
+    return { x: 2, y: 2 };
   };
 
   const startGame = () => {
     const init = [
-      { x: 7, y: 7 },
-      { x: 7, y: 8 },
-      { x: 7, y: 9 },
+      { x: startX, y: startY },
+      { x: startX, y: startY + 1 },
+      { x: startX, y: startY + 2 },
     ];
     setSnake(init);
     setDirection('UP');
     nextDirRef.current = 'UP';
     setFood(getRandomFood(init));
     setScore(0);
-    setSpeed(130);
+    setSpeed(125);
     setGameState('PLAYING');
   };
 
   const changeDirection = (dir) => {
-    if (gameState !== 'PLAYING') return;
     const current = nextDirRef.current;
     if (dir === 'UP' && current !== 'DOWN') nextDirRef.current = 'UP';
     if (dir === 'DOWN' && current !== 'UP') nextDirRef.current = 'DOWN';
@@ -101,6 +104,31 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, gameState]);
 
+  // Touch Swipe Handlers (Seamless & Continuous)
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const THRESHOLD = 16;
+
+    if (Math.abs(dx) > THRESHOLD || Math.abs(dy) > THRESHOLD) {
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) changeDirection('RIGHT');
+        else changeDirection('LEFT');
+      } else {
+        if (dy > 0) changeDirection('DOWN');
+        else changeDirection('UP');
+      }
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  };
+
   // Game Loop
   useEffect(() => {
     if (gameState !== 'PLAYING') return;
@@ -117,7 +145,7 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
         if (dir === 'RIGHT') head.x += 1;
 
         // Collision: Wall
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        if (head.x < 0 || head.x >= GRID_COLS || head.y < 0 || head.y >= GRID_ROWS) {
           setGameState('GAME_OVER');
           return prevSnake;
         }
@@ -141,8 +169,8 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
             } catch (e) {}
           }
           setFood(getRandomFood(newSnake));
-          if (newScore % 40 === 0 && speed > 70) {
-            setSpeed((s) => Math.max(70, s - 8));
+          if (newScore % 40 === 0 && speed > 65) {
+            setSpeed((s) => Math.max(65, s - 7));
           }
         } else {
           newSnake.pop();
@@ -159,75 +187,86 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4 bg-black/90 backdrop-blur-md select-none touch-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-sm bg-[#0C0C0F] border border-[#24242C] rounded-3xl p-5 text-[#FFFFFF] shadow-2xl flex flex-col justify-between space-y-4"
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          className="w-full max-w-lg h-[92vh] max-h-[850px] bg-[#090909] border border-[#202028] rounded-3xl p-3 md:p-4 text-[#FFFFFF] shadow-2xl flex flex-col justify-between"
         >
-          {/* Top Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#1E1E24] border border-[#2A2A34] flex items-center justify-center text-[#FFFFFF]">
-                <Gamepad2 size={18} />
+          {/* Top Header Floating HUD */}
+          <div className="flex items-center justify-between pb-2 shrink-0">
+            {/* Title */}
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-lg bg-[#18181E] border border-[#2A2A34] flex items-center justify-center text-[#FFFFFF]">
+                <Gamepad2 size={16} />
               </div>
-              <div>
-                <h3 className="text-sm font-extrabold text-[#FFFFFF] tracking-tight">BALANCE SNAKE</h3>
-                <p className="text-[10px] font-medium text-[#7E7E86]">Secret Easter Egg Edition</p>
+              <h3 className="text-sm font-extrabold text-[#FFFFFF] tracking-tight">BALANCE SNAKE</h3>
+            </div>
+
+            {/* Score Badges */}
+            <div className="flex items-center space-x-2">
+              <div className="bg-[#131316] border border-[#24242C] rounded-full px-3 py-1 flex items-center space-x-1.5">
+                <span className="text-[10px] font-bold text-[#8E8E96]">SCORE</span>
+                <span className="text-xs font-black text-[#FFFFFF] font-mono">{currency}{score * 100}</span>
+              </div>
+
+              <div className="bg-[#131316] border border-[#24242C] rounded-full px-3 py-1 flex items-center space-x-1 text-[#F59E0B]">
+                <Trophy size={11} />
+                <span className="text-xs font-black font-mono">{currency}{highScore * 100}</span>
               </div>
             </div>
 
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-[#18181C] hover:bg-[#24242A] border border-[#282830] flex items-center justify-center text-[#A0A0A8] hover:text-[#FFFFFF] transition-colors cursor-pointer"
-            >
-              <X size={16} />
-            </button>
+            {/* Actions */}
+            <div className="flex items-center space-x-1.5">
+              {gameState === 'PLAYING' && (
+                <button
+                  onClick={() => setGameState('PAUSED')}
+                  className="w-8 h-8 rounded-full bg-[#18181E] hover:bg-[#24242A] border border-[#282832] flex items-center justify-center text-[#FFFFFF] cursor-pointer"
+                >
+                  <Pause size={14} />
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-[#18181E] hover:bg-[#24242A] border border-[#282832] flex items-center justify-center text-[#A0A0A8] hover:text-[#FFFFFF] transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
-          {/* Scoreboard Badges */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-[#131316] border border-[#222228] rounded-2xl px-3.5 py-2 flex items-center justify-between">
-              <span className="text-[10.5px] font-bold text-[#8E8E96]">SCORE</span>
-              <span className="text-base font-black text-[#FFFFFF] font-mono">{currency}{score * 100}</span>
-            </div>
-
-            <div className="bg-[#131316] border border-[#222228] rounded-2xl px-3.5 py-2 flex items-center justify-between">
-              <div className="flex items-center space-x-1 text-[#F59E0B]">
-                <Trophy size={13} />
-                <span className="text-[10.5px] font-bold text-[#8E8E96]">BEST</span>
-              </div>
-              <span className="text-base font-black text-[#F59E0B] font-mono">{currency}{highScore * 100}</span>
-            </div>
-          </div>
-
-          {/* Game Board Container */}
-          <div className="relative w-full aspect-square bg-[#121216] border-2 border-[#24242C] rounded-2xl overflow-hidden shadow-inner flex items-center justify-center select-none">
-            {/* Grid cell rendering */}
+          {/* Full Board Area */}
+          <div className="relative flex-1 w-full bg-[#0E0E13] border-2 border-[#202028] rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+            {/* Grid Pattern */}
             <div
               className="w-full h-full relative"
               style={{
                 display: 'grid',
-                gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-                gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+                gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
+                gridTemplateRows: `repeat(${GRID_ROWS}, 1fr)`,
               }}
             >
-              {/* Food */}
+              {/* Food Coin */}
               <div
-                className="absolute bg-[#F59E0B] rounded-full flex items-center justify-center font-bold text-[10px] text-black shadow-lg animate-pulse"
+                className="absolute bg-[#F59E0B] rounded-full flex items-center justify-center font-black text-black shadow-lg animate-pulse z-10"
                 style={{
-                  left: `${(food.x / GRID_SIZE) * 100}%`,
-                  top: `${(food.y / GRID_SIZE) * 100}%`,
-                  width: `${(1 / GRID_SIZE) * 100}%`,
-                  height: `${(1 / GRID_SIZE) * 100}%`,
-                  padding: '2px',
+                  left: `${(food.x / GRID_COLS) * 100}%`,
+                  top: `${(food.y / GRID_ROWS) * 100}%`,
+                  width: `${(1 / GRID_COLS) * 100}%`,
+                  height: `${(1 / GRID_ROWS) * 100}%`,
+                  padding: '1px',
+                  fontSize: '11px',
                 }}
               >
                 <span className="leading-none">{currency}</span>
               </div>
 
-              {/* Snake Segments */}
+              {/* Snake Body Segments */}
               {snake.map((seg, idx) => {
                 const isHead = idx === 0;
                 return (
@@ -235,49 +274,59 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
                     key={idx}
                     className={`absolute transition-all ${
                       isHead
-                        ? 'bg-[#FFFFFF] rounded-md shadow-md z-10'
+                        ? 'bg-[#FFFFFF] rounded-md shadow-md z-20'
                         : 'bg-[#9E9EA8] rounded-sm'
                     }`}
                     style={{
-                      left: `${(seg.x / GRID_SIZE) * 100}%`,
-                      top: `${(seg.y / GRID_SIZE) * 100}%`,
-                      width: `${(1 / GRID_SIZE) * 100}%`,
-                      height: `${(1 / GRID_SIZE) * 100}%`,
-                      opacity: Math.max(0.4, 1 - idx * 0.03),
+                      left: `${(seg.x / GRID_COLS) * 100}%`,
+                      top: `${(seg.y / GRID_ROWS) * 100}%`,
+                      width: `${(1 / GRID_COLS) * 100}%`,
+                      height: `${(1 / GRID_ROWS) * 100}%`,
+                      opacity: Math.max(0.45, 1 - idx * 0.025),
                     }}
                   />
                 );
               })}
             </div>
 
-            {/* Overlay State Modals */}
+            {/* In-Game Subtle Swipe Hint */}
+            {gameState === 'PLAYING' && score === 0 && (
+              <div className="absolute bottom-3 inset-x-0 flex items-center justify-center pointer-events-none">
+                <span className="text-[11px] font-semibold text-white/30 tracking-widest uppercase">
+                  Swipe anywhere to turn
+                </span>
+              </div>
+            )}
+
+            {/* Overlay Modals */}
             {gameState !== 'PLAYING' && (
-              <div className="absolute inset-0 bg-[#0A0A0E]/90 flex flex-col items-center justify-center p-6 text-center z-20 space-y-3">
+              <div className="absolute inset-0 bg-[#09090C]/90 flex flex-col items-center justify-center p-6 text-center z-30 space-y-3">
                 {gameState === 'IDLE' && (
                   <>
-                    <div className="w-12 h-12 rounded-2xl bg-[#1F1F26] border border-[#32323E] flex items-center justify-center text-[#FFFFFF]">
-                      <Gamepad2 size={24} />
+                    <div className="w-14 h-14 rounded-2xl bg-[#181822] border border-[#2D2D3C] flex items-center justify-center text-[#FFFFFF]">
+                      <Gamepad2 size={28} />
                     </div>
-                    <h4 className="text-base font-extrabold text-[#FFFFFF]">Ready to Grow?</h4>
-                    <p className="text-xs text-[#A0A0AA] max-w-[200px] leading-relaxed">
-                      Use Arrow keys or touch D-Pad to collect balance tokens!
+                    <h4 className="text-xl font-extrabold text-[#FFFFFF]">Balance Snake</h4>
+                    <p className="text-xs text-[#A0A0AA] max-w-[240px] leading-relaxed">
+                      Swipe anywhere or use Arrow keys to guide your snake and grow your balance!
                     </p>
                     <button
                       onClick={startGame}
-                      className="px-6 py-2.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs rounded-full flex items-center space-x-1.5 transition-all shadow-lg active:scale-95 cursor-pointer"
+                      className="px-8 py-3 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95 cursor-pointer mt-2"
                     >
-                      <Play size={14} fill="#090909" />
-                      <span>START GAME</span>
+                      <Play size={15} fill="#090909" />
+                      <span>SWIPE TO START</span>
                     </button>
                   </>
                 )}
 
                 {gameState === 'PAUSED' && (
                   <>
-                    <h4 className="text-lg font-black text-[#FFFFFF]">PAUSED</h4>
+                    <h4 className="text-xl font-black text-[#FFFFFF]">PAUSED</h4>
+                    <p className="text-xs text-[#8E8E98]">Swipe or click below to resume</p>
                     <button
                       onClick={() => setGameState('PLAYING')}
-                      className="px-6 py-2.5 bg-[#FFFFFF] text-[#090909] font-bold text-xs rounded-full flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+                      className="px-7 py-2.5 bg-[#FFFFFF] text-[#090909] font-bold text-xs rounded-full flex items-center space-x-2 active:scale-95 cursor-pointer mt-1"
                     >
                       <Play size={14} fill="#090909" />
                       <span>RESUME</span>
@@ -287,7 +336,7 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
 
                 {gameState === 'GAME_OVER' && (
                   <>
-                    <h4 className="text-xl font-black text-[#FF7070] tracking-tight">GAME OVER</h4>
+                    <h4 className="text-2xl font-black text-[#FF6B6B] tracking-tight">GAME OVER</h4>
                     <p className="text-xs text-[#D6D6D6] font-medium">
                       Final Balance: <strong className="text-[#FFFFFF]">{currency}{score * 100}</strong>
                     </p>
@@ -298,59 +347,15 @@ export default function SnakeGameModal({ isOpen, onClose, currency = '₹' }) {
                     )}
                     <button
                       onClick={startGame}
-                      className="px-6 py-2.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs rounded-full flex items-center space-x-1.5 transition-all shadow-lg active:scale-95 cursor-pointer mt-1"
+                      className="px-8 py-3 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95 cursor-pointer mt-2"
                     >
-                      <RotateCcw size={14} strokeWidth={2.5} />
+                      <RotateCcw size={15} strokeWidth={2.5} />
                       <span>PLAY AGAIN</span>
                     </button>
                   </>
                 )}
               </div>
             )}
-          </div>
-
-          {/* Touch D-Pad */}
-          <div className="flex flex-col items-center justify-center pt-1">
-            <button
-              onClick={() => changeDirection('UP')}
-              className="w-14 h-11 rounded-xl bg-[#18181D] hover:bg-[#222228] border border-[#262630] flex items-center justify-center text-[#FFFFFF] active:scale-95 cursor-pointer mb-1 shadow-sm"
-            >
-              <ChevronUp size={22} strokeWidth={2.6} />
-            </button>
-
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => changeDirection('LEFT')}
-                className="w-14 h-11 rounded-xl bg-[#18181D] hover:bg-[#222228] border border-[#262630] flex items-center justify-center text-[#FFFFFF] active:scale-95 cursor-pointer shadow-sm"
-              >
-                <ChevronLeft size={22} strokeWidth={2.6} />
-              </button>
-
-              <button
-                onClick={() => {
-                  if (gameState === 'PLAYING') setGameState('PAUSED');
-                  else if (gameState === 'PAUSED') setGameState('PLAYING');
-                  else if (gameState === 'IDLE' || gameState === 'GAME_OVER') startGame();
-                }}
-                className="w-14 h-11 rounded-xl bg-[#24242C] hover:bg-[#2D2D36] border border-[#343440] flex items-center justify-center text-[#FFFFFF] active:scale-95 cursor-pointer shadow-sm"
-              >
-                {gameState === 'PLAYING' ? <Pause size={17} /> : <Play size={17} fill="#FFFFFF" />}
-              </button>
-
-              <button
-                onClick={() => changeDirection('RIGHT')}
-                className="w-14 h-11 rounded-xl bg-[#18181D] hover:bg-[#222228] border border-[#262630] flex items-center justify-center text-[#FFFFFF] active:scale-95 cursor-pointer shadow-sm"
-              >
-                <ChevronRight size={22} strokeWidth={2.6} />
-              </button>
-            </div>
-
-            <button
-              onClick={() => changeDirection('DOWN')}
-              className="w-14 h-11 rounded-xl bg-[#18181D] hover:bg-[#222228] border border-[#262630] flex items-center justify-center text-[#FFFFFF] active:scale-95 cursor-pointer mt-1 shadow-sm"
-            >
-              <ChevronDown size={22} strokeWidth={2.6} />
-            </button>
           </div>
         </motion.div>
       </div>
