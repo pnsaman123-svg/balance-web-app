@@ -20,6 +20,7 @@ import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 import AnimatedNumber from '../components/AnimatedNumber';
 import AdjustAllocationModal from '../components/AdjustAllocationModal';
+import SnakeGameModal from '../components/SnakeGameModal';
 
 export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNavigateTab, onSelectCategoryDetail }) {
   const {
@@ -42,6 +43,25 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
   const [homeSlide, setHomeSlide] = useState(0);
   const [homeAmountStr, setHomeAmountStr] = useState('');
   const [isAdjustAllocationOpen, setIsAdjustAllocationOpen] = useState(false);
+  const [isSnakeGameOpen, setIsSnakeGameOpen] = useState(false);
+  const [avatarTapCount, setAvatarTapCount] = useState(0);
+  const [lastAvatarTapTime, setLastAvatarTapTime] = useState(0);
+
+  const handleAvatarTap = () => {
+    const now = Date.now();
+    if (now - lastAvatarTapTime < 1800) {
+      const newCount = avatarTapCount + 1;
+      if (newCount >= 5) {
+        setIsSnakeGameOpen(true);
+        setAvatarTapCount(0);
+      } else {
+        setAvatarTapCount(newCount);
+      }
+    } else {
+      setAvatarTapCount(1);
+    }
+    setLastAvatarTapTime(now);
+  };
 
   const handleKeypadPress = (val) => {
     if (val === 'backspace') {
@@ -86,9 +106,14 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
             <ChevronDown size={13} className="text-[#8A8A8A]" />
           </div>
 
-          <div className="w-9 h-9 rounded-full bg-[#1C1C1C] border border-[#292929] flex items-center justify-center text-xs font-bold text-[#FFFFFF]">
+          <button
+            type="button"
+            onClick={handleAvatarTap}
+            className="w-9 h-9 rounded-full bg-[#1C1C1C] border border-[#292929] flex items-center justify-center text-xs font-bold text-[#FFFFFF] active:scale-95 transition-transform select-none cursor-pointer"
+            aria-label="User profile"
+          >
             {userName ? userName.charAt(0).toUpperCase() : 'U'}
-          </div>
+          </button>
         </div>
 
         {/* Home Content Container with Swipe Support */}
@@ -356,6 +381,13 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
       <AdjustAllocationModal
         isOpen={isAdjustAllocationOpen}
         onClose={() => setIsAdjustAllocationOpen(false)}
+      />
+
+      {/* Secret Easter Egg Snake Game Modal */}
+      <SnakeGameModal
+        isOpen={isSnakeGameOpen}
+        onClose={() => setIsSnakeGameOpen(false)}
+        currency={currency}
       />
     </div>
   );
