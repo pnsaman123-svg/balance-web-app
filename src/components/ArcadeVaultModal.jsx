@@ -562,7 +562,15 @@ function Wealth2048GameView({ currency = '₹', onUpdateScore, onGameOver, onGam
   const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState('IDLE');
 
+  const gridRef = useRef([
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+  ]);
+  const scoreRef = useRef(0);
   const touchStartRef = useRef({ x: 0, y: 0 });
+  const hasMovedRef = useRef(false);
   const stateRef = useRef('IDLE');
 
   const getEmptyCells = (g) => {
@@ -594,7 +602,9 @@ function Wealth2048GameView({ currency = '₹', onUpdateScore, onGameOver, onGam
     ];
     g = spawnRandomTile(g);
     g = spawnRandomTile(g);
+    gridRef.current = g;
     setGrid(g);
+    scoreRef.current = 0;
     setScore(0);
     setGameState('PLAYING');
     stateRef.current = 'PLAYING';
@@ -640,7 +650,7 @@ function Wealth2048GameView({ currency = '₹', onUpdateScore, onGameOver, onGam
     if (dir === 'RIGHT') rotations = 2;
     if (dir === 'DOWN') rotations = 1;
 
-    let working = grid.map((r) => [...r]);
+    let working = gridRef.current.map((r) => [...r]);
     for (let i = 0; i < rotations; i++) working = rotateGridClockwise(working);
 
     let totalGained = 0;
@@ -660,9 +670,11 @@ function Wealth2048GameView({ currency = '₹', onUpdateScore, onGameOver, onGam
     for (let i = 0; i < (4 - rotations) % 4; i++) finalGrid = rotateGridClockwise(finalGrid);
 
     const withSpawn = spawnRandomTile(finalGrid);
+    gridRef.current = withSpawn;
     setGrid(withSpawn);
 
-    const nextScore = score + totalGained;
+    const nextScore = scoreRef.current + totalGained;
+    scoreRef.current = nextScore;
     setScore(nextScore);
     onUpdateScore(nextScore);
 
@@ -703,28 +715,50 @@ function Wealth2048GameView({ currency = '₹', onUpdateScore, onGameOver, onGam
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [grid, score]);
+  }, []);
 
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
+    hasMovedRef.current = false;
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   };
 
-  const handleTouchEnd = (e) => {
-    const touch = e.changedTouches[0];
+  const handleTouchMove = (e) => {
+    if (stateRef.current !== 'PLAYING' || hasMovedRef.current) return;
+    const touch = e.touches[0];
     const dx = touch.clientX - touchStartRef.current.x;
     const dy = touch.clientY - touchStartRef.current.y;
-    if (stateRef.current === 'IDLE' || stateRef.current === 'GAME_OVER') {
-      startGame();
-      return;
-    }
-    if (Math.abs(dx) > 15 || Math.abs(dy) > 15) {
+    const THRESHOLD = 20;
+
+    if (Math.abs(dx) > THRESHOLD || Math.abs(dy) > THRESHOLD) {
+      hasMovedRef.current = true;
       if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0) move('RIGHT');
         else move('LEFT');
       } else {
         if (dy > 0) move('DOWN');
         else move('UP');
+      }
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (stateRef.current === 'IDLE' || stateRef.current === 'GAME_OVER') {
+      startGame();
+      return;
+    }
+    if (!hasMovedRef.current) {
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartRef.current.x;
+      const dy = touch.clientY - touchStartRef.current.y;
+      if (Math.abs(dx) > 15 || Math.abs(dy) > 15) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 0) move('RIGHT');
+          else move('LEFT');
+        } else {
+          if (dy > 0) move('DOWN');
+          else move('UP');
+        }
       }
     }
   };
