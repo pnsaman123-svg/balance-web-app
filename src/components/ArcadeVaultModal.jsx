@@ -46,6 +46,10 @@ function SnakeGameView({ currency = '₹', onUpdateScore, onGameOver, onGameStar
 
   const touchStartRef = useRef({ x: 0, y: 0 });
   const stateRef = useRef('IDLE');
+  const snakeRef = useRef([]);
+  const foodRef = useRef({ x: startX, y: Math.max(2, startY - 5) });
+  const scoreRef = useRef(0);
+  const speedRef = useRef(120);
 
   const getRandomFood = (currentSnake) => {
     let newFood;
@@ -67,12 +71,17 @@ function SnakeGameView({ currency = '₹', onUpdateScore, onGameOver, onGameStar
       { x: startX, y: startY + 1 },
       { x: startX, y: startY + 2 },
     ];
+    snakeRef.current = init;
     setSnake(init);
     setDirection(initialDir);
     nextDirRef.current = initialDir;
-    setFood(getRandomFood(init));
+    const initialFood = getRandomFood(init);
+    foodRef.current = initialFood;
+    setFood(initialFood);
+    scoreRef.current = 0;
     setScore(0);
     onUpdateScore(0);
+    speedRef.current = 120;
     setSpeed(120);
     setGameState('PLAYING');
     stateRef.current = 'PLAYING';
@@ -151,43 +160,54 @@ function SnakeGameView({ currency = '₹', onUpdateScore, onGameOver, onGameStar
       const dir = nextDirRef.current;
       setDirection(dir);
 
-      setSnake((prev) => {
-        const head = { ...prev[0] };
-        if (dir === 'UP') head.y -= 1;
-        if (dir === 'DOWN') head.y += 1;
-        if (dir === 'LEFT') head.x -= 1;
-        if (dir === 'RIGHT') head.x += 1;
+      const currentSnake = snakeRef.current;
+      if (!currentSnake || currentSnake.length === 0) return;
 
-        // Wrap around borders
-        if (head.x < 0) head.x = GRID_COLS - 1;
-        else if (head.x >= GRID_COLS) head.x = 0;
-        if (head.y < 0) head.y = GRID_ROWS - 1;
-        else if (head.y >= GRID_ROWS) head.y = 0;
+      const head = { ...currentSnake[0] };
+      if (dir === 'UP') head.y -= 1;
+      if (dir === 'DOWN') head.y += 1;
+      if (dir === 'LEFT') head.x -= 1;
+      if (dir === 'RIGHT') head.x += 1;
 
-        // Self collision
-        if (prev.some((seg) => seg.x === head.x && seg.y === head.y)) {
-          setGameState('GAME_OVER');
-          stateRef.current = 'GAME_OVER';
-          onGameOver(score);
-          return prev;
+      // Wrap around borders
+      if (head.x < 0) head.x = GRID_COLS - 1;
+      else if (head.x >= GRID_COLS) head.x = 0;
+      if (head.y < 0) head.y = GRID_ROWS - 1;
+      else if (head.y >= GRID_ROWS) head.y = 0;
+
+      // Self collision
+      if (currentSnake.some((seg) => seg.x === head.x && seg.y === head.y)) {
+        setGameState('GAME_OVER');
+        stateRef.current = 'GAME_OVER';
+        onGameOver(scoreRef.current);
+        return;
+      }
+
+      const nextSnake = [head, ...currentSnake];
+      const curFood = foodRef.current;
+      if (head.x === curFood.x && head.y === curFood.y) {
+        const newScore = scoreRef.current + 10;
+        scoreRef.current = newScore;
+        setScore(newScore);
+        onUpdateScore(newScore);
+        const newFood = getRandomFood(nextSnake);
+        foodRef.current = newFood;
+        setFood(newFood);
+        if (newScore % 40 === 0 && speedRef.current > 60) {
+          const newSpeed = Math.max(60, speedRef.current - 6);
+          speedRef.current = newSpeed;
+          setSpeed(newSpeed);
         }
+      } else {
+        nextSnake.pop();
+      }
 
-        const nextSnake = [head, ...prev];
-        if (head.x === food.x && head.y === food.y) {
-          const newScore = score + 10;
-          setScore(newScore);
-          onUpdateScore(newScore);
-          setFood(getRandomFood(nextSnake));
-          if (newScore % 40 === 0 && speed > 60) setSpeed((s) => Math.max(60, s - 6));
-        } else {
-          nextSnake.pop();
-        }
-        return nextSnake;
-      });
+      snakeRef.current = nextSnake;
+      setSnake(nextSnake);
     }, speed);
 
     return () => clearInterval(timer);
-  }, [gameState, isPaused, food, score, speed]);
+  }, [gameState, isPaused, speed]);
 
   return (
     <div
@@ -291,14 +311,19 @@ function CoinCatchGameView({ currency = '₹', onUpdateScore, onGameOver, onGame
   const scoreRef = useRef(0);
   const livesRef = useRef(3);
   const stateRef = useRef('IDLE');
+  const itemsRef = useRef([]);
+  const bullRunRef = useRef(false);
+  const bullRunTimerRef = useRef(null);
 
   const startGame = () => {
     setBasketX(50);
+    itemsRef.current = [];
     setItems([]);
     setScore(0);
     scoreRef.current = 0;
     setLives(3);
     livesRef.current = 3;
+    bullRunRef.current = false;
     setIsBullRun(false);
     setGameState('PLAYING');
     stateRef.current = 'PLAYING';
@@ -366,55 +391,73 @@ function CoinCatchGameView({ currency = '₹', onUpdateScore, onGameOver, onGame
           y: -5,
           speed: Math.random() * 0.4 + 1.2,
         };
-        setItems((prev) => [...prev, newItem]);
+        itemsRef.current.push(newItem);
       }
 
-      setItems((prevItems) => {
-        const nextItems = [];
-        const curBasketX = basketXRef.current;
+      const nextItems = [];
+      const curBasketX = basketXRef.current;
+      let scoreChange = false;
+      let livesChange = false;
+      let gameOver = false;
 
-        for (const item of prevItems) {
-          const newY = item.y + item.speed;
+      for (const item of itemsRef.current) {
+        const newY = item.y + item.speed;
 
-          // Catch collision at bottom (~88% to 94%)
-          const isCaught = newY >= 88 && newY <= 95 && Math.abs(item.x - curBasketX) <= 12;
+        // Catch collision at bottom (~88% to 94%)
+        const isCaught = newY >= 88 && newY <= 95 && Math.abs(item.x - curBasketX) <= 12;
 
-          if (isCaught) {
-            if (item.type === 'coin' || item.type === 'gem') {
-              const add = isBullRun ? item.val * 2 : item.val;
-              scoreRef.current += add;
-              setScore(scoreRef.current);
-              onUpdateScore(scoreRef.current);
-            } else if (item.type === 'lightning') {
-              setIsBullRun(true);
-              scoreRef.current += 200;
-              setScore(scoreRef.current);
-              onUpdateScore(scoreRef.current);
-              setTimeout(() => setIsBullRun(false), 5000);
-            } else if (item.type === 'tax') {
-              livesRef.current -= 1;
-              setLives(livesRef.current);
-              scoreRef.current = Math.max(0, scoreRef.current - 150);
-              setScore(scoreRef.current);
-              onUpdateScore(scoreRef.current);
+        if (isCaught) {
+          if (item.type === 'coin' || item.type === 'gem') {
+            const add = bullRunRef.current ? item.val * 2 : item.val;
+            scoreRef.current += add;
+            scoreChange = true;
+          } else if (item.type === 'lightning') {
+            bullRunRef.current = true;
+            setIsBullRun(true);
+            scoreRef.current += 200;
+            scoreChange = true;
+            if (bullRunTimerRef.current) clearTimeout(bullRunTimerRef.current);
+            bullRunTimerRef.current = setTimeout(() => {
+              bullRunRef.current = false;
+              setIsBullRun(false);
+            }, 5000);
+          } else if (item.type === 'tax') {
+            livesRef.current -= 1;
+            livesChange = true;
+            scoreRef.current = Math.max(0, scoreRef.current - 150);
+            scoreChange = true;
 
-              if (livesRef.current <= 0) {
-                setGameState('GAME_OVER');
-                stateRef.current = 'GAME_OVER';
-                onGameOver(scoreRef.current);
-                return [];
-              }
+            if (livesRef.current <= 0) {
+              gameOver = true;
+              break;
             }
-          } else if (newY < 105) {
-            nextItems.push({ ...item, y: newY });
           }
+        } else if (newY < 105) {
+          nextItems.push({ ...item, y: newY });
         }
-        return nextItems;
-      });
+      }
+
+      if (gameOver) {
+        setGameState('GAME_OVER');
+        stateRef.current = 'GAME_OVER';
+        onGameOver(scoreRef.current);
+        return;
+      }
+
+      itemsRef.current = nextItems;
+      setItems(nextItems);
+
+      if (livesChange) {
+        setLives(livesRef.current);
+      }
+      if (scoreChange) {
+        setScore(scoreRef.current);
+        onUpdateScore(scoreRef.current);
+      }
     }, 20);
 
     return () => clearInterval(interval);
-  }, [gameState, isPaused, isBullRun]);
+  }, [gameState, isPaused]);
 
   return (
     <div
@@ -781,11 +824,13 @@ function MarketRunnerGameView({ currency = '₹', onUpdateScore, onGameOver, onG
   const velRef = useRef(0);
   const scoreRef = useRef(0);
   const stateRef = useRef('IDLE');
+  const sticksRef = useRef([]);
 
   const startGame = () => {
     setCoinY(50);
     coinYRef.current = 50;
     velRef.current = -1.5;
+    sticksRef.current = [];
     setCandlesticks([]);
     setScore(0);
     scoreRef.current = 0;
@@ -842,50 +887,59 @@ function MarketRunnerGameView({ currency = '₹', onUpdateScore, onGameOver, onG
         const topH = Math.random() * 40 + 15; // 15% to 55%
         const gap = 34; // 34% gap
         const bottomH = 100 - topH - gap;
-        setCandlesticks((prev) => [
-          ...prev,
-          {
-            id: Date.now() + Math.random(),
-            x: 105,
-            topHeight: topH,
-            bottomHeight: bottomH,
-            passed: false,
-          },
-        ]);
+        sticksRef.current.push({
+          id: Date.now() + Math.random(),
+          x: 105,
+          topHeight: topH,
+          bottomHeight: bottomH,
+          passed: false,
+        });
       }
 
       // Move Candlesticks
-      setCandlesticks((prev) => {
-        const nextSticks = [];
-        const coinX = 18; // 18% position
+      const nextSticks = [];
+      const coinX = 18; // 18% position
+      let scoreGain = 0;
+      let crashed = false;
 
-        for (const stick of prev) {
-          const nextX = stick.x - 1.2;
+      for (const stick of sticksRef.current) {
+        const nextX = stick.x - 1.2;
 
-          // Collision check
-          if (nextX <= coinX + 6 && nextX + 8 >= coinX) {
-            if (nextY < stick.topHeight || nextY + 5 > 100 - stick.bottomHeight) {
-              setGameState('GAME_OVER');
-              stateRef.current = 'GAME_OVER';
-              onGameOver(scoreRef.current);
-              return [];
-            }
-          }
-
-          let passed = stick.passed;
-          if (!passed && nextX + 8 < coinX) {
-            passed = true;
-            scoreRef.current += 100;
-            setScore(scoreRef.current);
-            onUpdateScore(scoreRef.current);
-          }
-
-          if (nextX > -15) {
-            nextSticks.push({ ...stick, x: nextX, passed });
+        // Collision check
+        if (nextX <= coinX + 6 && nextX + 8 >= coinX) {
+          if (nextY < stick.topHeight || nextY + 5 > 100 - stick.bottomHeight) {
+            crashed = true;
+            break;
           }
         }
-        return nextSticks;
-      });
+
+        let passed = stick.passed;
+        if (!passed && nextX + 8 < coinX) {
+          passed = true;
+          scoreGain += 100;
+        }
+
+        if (nextX > -15) {
+          nextSticks.push({ ...stick, x: nextX, passed });
+        }
+      }
+
+      if (crashed) {
+        setGameState('GAME_OVER');
+        stateRef.current = 'GAME_OVER';
+        onGameOver(scoreRef.current);
+        return;
+      }
+
+      sticksRef.current = nextSticks;
+      setCandlesticks(nextSticks);
+
+      if (scoreGain > 0) {
+        scoreRef.current += scoreGain;
+        const curScore = scoreRef.current;
+        setScore(curScore);
+        onUpdateScore(curScore);
+      }
     }, 20);
 
     return () => clearInterval(interval);
