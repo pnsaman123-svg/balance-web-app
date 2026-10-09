@@ -20,7 +20,7 @@ import { useFinance } from '../context/FinanceContext';
 import CategoryIcon from '../components/CategoryIcon';
 import AnimatedNumber from '../components/AnimatedNumber';
 import AdjustAllocationModal from '../components/AdjustAllocationModal';
-import SnakeGameModal from '../components/SnakeGameModal';
+import ArcadeVaultModal from '../components/ArcadeVaultModal';
 
 export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNavigateTab, onSelectCategoryDetail }) {
   const {
@@ -383,8 +383,8 @@ export default function HomeScreen({ onOpenAddExpense, onOpenAddIncome, onNaviga
         onClose={() => setIsAdjustAllocationOpen(false)}
       />
 
-      {/* Secret Easter Egg Snake Game Modal */}
-      <SnakeGameModal
+      {/* Secret Easter Egg Arcade Vault Modal */}
+      <ArcadeVaultModal
         isOpen={isSnakeGameOpen}
         onClose={() => setIsSnakeGameOpen(false)}
         currency={currency}
