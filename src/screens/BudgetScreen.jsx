@@ -58,12 +58,12 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
   const totalOverAmount = isTotalOver ? totalSpent - effectiveBudget : 0;
   const totalRemaining = Math.max(0, effectiveBudget - totalSpent);
 
-  // SVG semi-circular gauge calculations (R=95, center=(140, 130))
-  const arcLength = 298.45;
+  // SVG semi-circular gauge calculations (R=105, center=(145, 135))
+  const arcLength = 329.87;
   const strokeOffset = arcLength * (1 - clampedGaugePercent / 100);
   const angleRad = Math.PI * (1 - clampedGaugePercent / 100);
-  const pipX = 140 + 95 * Math.cos(angleRad);
-  const pipY = 130 - 95 * Math.sin(angleRad);
+  const pipX = 145 + 105 * Math.cos(angleRad);
+  const pipY = 135 - 105 * Math.sin(angleRad);
 
   const togglePillar = (catId) => {
     setExpandedPillars((prev) => ({
@@ -148,21 +148,21 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
           OVERALL SPENT: {overallSpentPercent}%
         </span>
 
-        <div className="relative flex items-center justify-center h-[145px] w-[280px] mt-1">
-          <svg width="280" height="145" viewBox="0 0 280 145" className="overflow-visible">
+        <div className="relative flex items-center justify-center h-[150px] w-[290px] mt-2">
+          <svg width="290" height="150" viewBox="0 0 290 150" className="overflow-visible">
             {/* Background Track */}
             <path
-              d="M 45,130 A 95,95 0 0,1 235,130"
+              d="M 40,135 A 105,105 0 0,1 250,135"
               stroke="#252525"
-              strokeWidth="22"
+              strokeWidth="16"
               strokeLinecap="round"
               fill="none"
             />
             {/* Active White Fill */}
             <path
-              d="M 45,130 A 95,95 0 0,1 235,130"
+              d="M 40,135 A 105,105 0 0,1 250,135"
               stroke="#FFFFFF"
-              strokeWidth="22"
+              strokeWidth="16"
               strokeLinecap="round"
               fill="none"
               strokeDasharray={arcLength}
@@ -183,18 +183,18 @@ export default function BudgetScreen({ onBack, onOpenAddExpense }) {
           </svg>
 
           {/* Center Metric Overlay inside Arch */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pt-8 pointer-events-none">
-            <span className="text-3xl font-black text-[#FFFFFF] tracking-tight">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pt-10 pointer-events-none">
+            <span className="text-2xl font-black text-[#FFFFFF] tracking-tight">
               {isTotalOver ? `+${formatCurrency(totalOverAmount)}` : formatCurrency(totalRemaining)}
             </span>
-            <span className={`text-xs font-medium mt-0.5 ${isTotalOver ? 'text-[#FF7070]' : 'text-[#8A8A8A]'}`}>
+            <span className={`text-xs font-medium mt-1 ${isTotalOver ? 'text-[#FF7070]' : 'text-[#8A8A8A]'}`}>
               {isTotalOver ? 'over this month' : 'left this month'}
             </span>
           </div>
         </div>
 
         {/* Gauge Bottom Labels (Spent on Left, Total Budget on Right) */}
-        <div className="flex justify-between w-[220px] -mt-1 text-xs font-semibold text-[#666666]">
+        <div className="flex justify-between w-[250px] mt-2 text-xs font-semibold text-[#666666]">
           <span>{formatCurrency(totalSpent)}</span>
           <span>{formatCurrency(effectiveBudget)}</span>
         </div>
