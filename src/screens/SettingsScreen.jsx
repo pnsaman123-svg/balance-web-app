@@ -88,14 +88,9 @@ export default function SettingsScreen({ onBack, onStartOnboarding }) {
         </div>
       </div>
 
-        {/* Configuration Charcoal Card */}
-        <div className="bg-[#141414] border border-[#242424] rounded-3xl p-5 shadow-xl space-y-4">
-          <span className="text-[10px] font-bold text-[#8A8A8A] uppercase tracking-wider block">
-            Configuration
-          </span>
-
-          <div className="space-y-3">
-            {/* Adjust 50/30/20 Allocation */}
+        {/* Settings Action Items */}
+        <div className="px-5 space-y-3 pb-12">
+          {/* Adjust 50/30/20 Allocation */}
             <button
               onClick={() => setIsAdjustAllocationOpen(true)}
               className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all cursor-pointer"
@@ -180,7 +175,6 @@ export default function SettingsScreen({ onBack, onStartOnboarding }) {
               )}
             </div>
           </div>
-        </div>
 
       {/* Adjust Allocation Modal */}
       <AdjustAllocationModal
