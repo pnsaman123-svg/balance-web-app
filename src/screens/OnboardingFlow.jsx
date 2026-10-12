@@ -423,20 +423,20 @@ export default function OnboardingFlow({ onFinish }) {
           className="flex-1 flex flex-col justify-between py-4 space-y-6"
         >
           <div className="space-y-4">
-            {/* Header Title Only (Centered) */}
-            <div className="text-center">
+            {/* Header Title Only (Centered with clean spacing) */}
+            <div className="text-center pt-2 pb-2">
               <h2 className="text-2xl font-black text-[#FFFFFF] tracking-tight">
                 Target Allocation Strategy
               </h2>
             </div>
 
-            {/* Modern Segmented Dual-Tier Capsule Tabs (Positioned at Top Below Heading) */}
+            {/* Modern Segmented Capsule Tabs (Positioned at Top Below Heading) */}
             <div className="flex bg-[#121215] border border-[#24242A] rounded-2xl p-1 gap-1">
               {[
-                { ratio: '50/30/20', tag: 'Balanced', n: 50, w: 30, s: 20 },
-                { ratio: '60/20/20', tag: 'Essential', n: 60, w: 20, s: 20 },
-                { ratio: '70/20/10', tag: 'Lean', n: 70, w: 20, s: 10 },
-                { ratio: '40/30/30', tag: 'Growth', n: 40, w: 30, s: 30 },
+                { ratio: '50/30/20', n: 50, w: 30, s: 20 },
+                { ratio: '60/20/20', n: 60, w: 20, s: 20 },
+                { ratio: '70/20/10', n: 70, w: 20, s: 10 },
+                { ratio: '40/30/30', n: 40, w: 30, s: 30 },
               ].map((r) => {
                 const isMatch =
                   percentAllocations.needs === r.n &&
@@ -446,17 +446,14 @@ export default function OnboardingFlow({ onFinish }) {
                   <button
                     key={r.ratio}
                     onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
-                    className={`flex-1 py-2 px-1 rounded-xl text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`flex-1 py-2.5 px-2 rounded-xl text-center transition-all cursor-pointer flex items-center justify-center ${
                       isMatch
-                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
-                        : 'bg-transparent text-[#8E8E93] hover:text-[#FFFFFF] hover:bg-[#1A1A1E]'
+                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md font-black'
+                        : 'bg-transparent text-[#8E8E93] hover:text-[#FFFFFF] hover:bg-[#1A1A1E] font-bold'
                     }`}
                   >
-                    <span className={`text-xs font-mono font-black ${isMatch ? 'text-[#090909]' : 'text-[#8E8E93]'}`}>
+                    <span className={`text-xs font-mono tracking-tight ${isMatch ? 'text-[#090909] font-black' : 'text-[#8E8E93]'}`}>
                       {r.ratio}
-                    </span>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider mt-0.5 ${isMatch ? 'text-[#333338]' : 'text-[#55555C]'}`}>
-                      {r.tag}
                     </span>
                   </button>
                 );
