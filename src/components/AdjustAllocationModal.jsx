@@ -99,8 +99,13 @@ export default function AdjustAllocationModal({ isOpen, onClose }) {
             <span className="text-[10px] font-bold text-[#666666] tracking-wider uppercase">
               Quick Presets
             </span>
-            <div className="grid grid-cols-2 gap-2">
-              {presets.map((preset) => {
+            <div className="flex bg-[#121215] border border-[#24242A] rounded-2xl p-1 gap-1">
+              {[
+                { label: '50/30/20', tag: 'Balanced', n: 50, w: 30, s: 20 },
+                { label: '60/20/20', tag: 'Essential', n: 60, w: 20, s: 20 },
+                { label: '70/20/10', tag: 'Lean', n: 70, w: 20, s: 10 },
+                { label: '40/30/30', tag: 'Growth', n: 40, w: 30, s: 30 },
+              ].map((preset) => {
                 const isActive =
                   percentages.needs === preset.n &&
                   percentages.wants === preset.w &&
@@ -115,13 +120,18 @@ export default function AdjustAllocationModal({ isOpen, onClose }) {
                         savings: preset.s,
                       })
                     }
-                    className={`py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                    className={`flex-1 py-2 px-1 rounded-xl text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                       isActive
-                        ? 'bg-[rgba(255,255,255,0.12)] text-[#FFFFFF] border-[#FFFFFF] shadow-sm'
-                        : 'bg-[#1A1A1A] text-[#8A8A8A] border-[#262626] hover:text-[#FFFFFF] hover:border-[#333333]'
+                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
+                        : 'bg-transparent text-[#8E8E93] hover:text-[#FFFFFF] hover:bg-[#1A1A1E]'
                     }`}
                   >
-                    <span>{preset.label}</span>
+                    <span className={`text-xs font-mono font-black ${isActive ? 'text-[#090909]' : 'text-[#8E8E93]'}`}>
+                      {preset.label}
+                    </span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider mt-0.5 ${isActive ? 'text-[#333338]' : 'text-[#55555C]'}`}>
+                      {preset.tag}
+                    </span>
                   </button>
                 );
               })}

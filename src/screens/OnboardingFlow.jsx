@@ -430,6 +430,39 @@ export default function OnboardingFlow({ onFinish }) {
               </h2>
             </div>
 
+            {/* Modern Segmented Dual-Tier Capsule Tabs (Positioned at Top Below Heading) */}
+            <div className="flex bg-[#121215] border border-[#24242A] rounded-2xl p-1 gap-1">
+              {[
+                { ratio: '50/30/20', tag: 'Balanced', n: 50, w: 30, s: 20 },
+                { ratio: '60/20/20', tag: 'Essential', n: 60, w: 20, s: 20 },
+                { ratio: '70/20/10', tag: 'Lean', n: 70, w: 20, s: 10 },
+                { ratio: '40/30/30', tag: 'Growth', n: 40, w: 30, s: 30 },
+              ].map((r) => {
+                const isMatch =
+                  percentAllocations.needs === r.n &&
+                  percentAllocations.wants === r.w &&
+                  percentAllocations.savings === r.s;
+                return (
+                  <button
+                    key={r.ratio}
+                    onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
+                    className={`flex-1 py-2 px-1 rounded-xl text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                      isMatch
+                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md'
+                        : 'bg-transparent text-[#8E8E93] hover:text-[#FFFFFF] hover:bg-[#1A1A1E]'
+                    }`}
+                  >
+                    <span className={`text-xs font-mono font-black ${isMatch ? 'text-[#090909]' : 'text-[#8E8E93]'}`}>
+                      {r.ratio}
+                    </span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider mt-0.5 ${isMatch ? 'text-[#333338]' : 'text-[#55555C]'}`}>
+                      {r.tag}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Horizontal Segmented Ratio Visualizer Bar */}
             <div className="bg-[#141414] border border-[#222222] rounded-2xl p-3.5 space-y-2.5">
               <div className="h-3.5 rounded-full overflow-hidden flex bg-[#1E1E1E] gap-0.5">
@@ -460,34 +493,6 @@ export default function OnboardingFlow({ onFinish }) {
                   <span>Savings {percentAllocations.savings}%</span>
                 </div>
               </div>
-            </div>
-
-            {/* Ratio Presets Below Top Bar */}
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { ratio: '50/30/20', n: 50, w: 30, s: 20 },
-                { ratio: '60/20/20', n: 60, w: 20, s: 20 },
-                { ratio: '70/20/10', n: 70, w: 20, s: 10 },
-                { ratio: '40/30/30', n: 40, w: 30, s: 30 },
-              ].map((r) => {
-                const isMatch =
-                  percentAllocations.needs === r.n &&
-                  percentAllocations.wants === r.w &&
-                  percentAllocations.savings === r.s;
-                return (
-                  <button
-                    key={r.ratio}
-                    onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
-                    className={`py-2.5 px-1 rounded-xl text-center font-mono font-bold text-xs transition-all border ${
-                      isMatch
-                        ? 'bg-[rgba(255,255,255,0.12)] text-[#FFFFFF] border-[#FFFFFF] shadow-sm'
-                        : 'bg-[#141414] text-[#8A8A8A] border-[#222222] hover:bg-[#1A1A1A]'
-                    }`}
-                  >
-                    {r.ratio}
-                  </button>
-                );
-              })}
             </div>
 
             {/* Horizontal Range Slider Cards (No Subtext, No -5/+5 buttons) */}
