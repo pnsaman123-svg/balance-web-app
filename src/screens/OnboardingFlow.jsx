@@ -430,39 +430,96 @@ export default function OnboardingFlow({ onFinish }) {
               </h2>
             </div>
 
-            {/* Modern Segmented Capsule Tabs (Positioned at Top Below Heading) */}
-            <div className="flex bg-[#121215] border border-[#24242A] rounded-2xl p-1 gap-1">
-              {[
-                { ratio: '50/30/20', n: 50, w: 30, s: 20 },
-                { ratio: '60/20/20', n: 60, w: 20, s: 20 },
-                { ratio: '70/20/10', n: 70, w: 20, s: 10 },
-                { ratio: '40/30/30', n: 40, w: 30, s: 30 },
-              ].map((r) => {
-                const isMatch =
-                  percentAllocations.needs === r.n &&
-                  percentAllocations.wants === r.w &&
-                  percentAllocations.savings === r.s;
-                return (
-                  <button
-                    key={r.ratio}
-                    onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
-                    className={`flex-1 py-2.5 px-2 rounded-xl text-center transition-all cursor-pointer flex items-center justify-center ${
-                      isMatch
-                        ? 'bg-[#FFFFFF] text-[#090909] shadow-md font-black'
-                        : 'bg-transparent text-[#8E8E93] hover:text-[#FFFFFF] hover:bg-[#1A1A1E] font-bold'
-                    }`}
-                  >
-                    <span className={`text-xs font-mono tracking-tight ${isMatch ? 'text-[#090909] font-black' : 'text-[#8E8E93]'}`}>
-                      {r.ratio}
+            {/* Split Layout: Left side rules, Right side percentages */}
+            <div className="flex gap-3.5 mt-1">
+              {/* Left Column: Rules Selection */}
+              <div className="w-[42%] flex flex-col">
+                <span className="text-[10px] font-bold text-[#707070] tracking-wider uppercase mb-2">
+                  Rules
+                </span>
+                <div className="space-y-2 max-h-[290px] overflow-y-auto pr-0.5">
+                  {[
+                    { ratio: '50/30/20', n: 50, w: 30, s: 20 },
+                    { ratio: '60/20/20', n: 60, w: 20, s: 20 },
+                    { ratio: '70/20/10', n: 70, w: 20, s: 10 },
+                    { ratio: '40/30/30', n: 40, w: 30, s: 30 },
+                    { ratio: '80/10/10', n: 80, w: 10, s: 10 },
+                  ].map((r) => {
+                    const isMatch =
+                      percentAllocations.needs === r.n &&
+                      percentAllocations.wants === r.w &&
+                      percentAllocations.savings === r.s;
+                    return (
+                      <button
+                        key={r.ratio}
+                        onClick={() => setPercentAllocations({ needs: r.n, wants: r.w, savings: r.s })}
+                        className={`w-full py-3.5 px-2.5 rounded-2xl text-center transition-all cursor-pointer flex items-center justify-center border font-mono text-xs ${
+                          isMatch
+                            ? 'bg-[#FFFFFF] text-[#090909] border-[#FFFFFF] font-black shadow-lg'
+                            : 'bg-[#141416] text-[#8E8E93] border-[#24242A] hover:border-[#383838] font-bold'
+                        }`}
+                      >
+                        <span>{r.ratio}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Needs, Wants, Savings Percentages */}
+              <div className="flex-1 flex flex-col">
+                <span className="text-[10px] font-bold text-[#707070] tracking-wider uppercase mb-2">
+                  Allocation
+                </span>
+                <div className="space-y-2">
+                  {/* Needs */}
+                  <div className="bg-[#141416] border border-[#24242A] rounded-2xl p-3 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
+                        <span className="text-xs font-bold text-[#FFFFFF]">Needs</span>
+                      </div>
+                      <span className="text-base font-black text-[#FFFFFF]">{percentAllocations.needs}%</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#8A8A8A] mt-1">
+                      {currency}{currentAllocations.needs.toLocaleString('en-IN')}
                     </span>
-                  </button>
-                );
-              })}
+                  </div>
+
+                  {/* Wants */}
+                  <div className="bg-[#141416] border border-[#24242A] rounded-2xl p-3 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#8E8E93]" />
+                        <span className="text-xs font-bold text-[#FFFFFF]">Wants</span>
+                      </div>
+                      <span className="text-base font-black text-[#FFFFFF]">{percentAllocations.wants}%</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#8A8A8A] mt-1">
+                      {currency}{currentAllocations.wants.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+
+                  {/* Savings */}
+                  <div className="bg-[#141416] border border-[#24242A] rounded-2xl p-3 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#48484A]" />
+                        <span className="text-xs font-bold text-[#FFFFFF]">Savings</span>
+                      </div>
+                      <span className="text-base font-black text-[#FFFFFF]">{percentAllocations.savings}%</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#8A8A8A] mt-1">
+                      {currency}{currentAllocations.savings.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Horizontal Segmented Ratio Visualizer Bar */}
-            <div className="bg-[#141414] border border-[#222222] rounded-2xl p-3.5 space-y-2.5">
-              <div className="h-3.5 rounded-full overflow-hidden flex bg-[#1E1E1E] gap-0.5">
+            <div className="bg-[#141414] border border-[#222222] rounded-2xl p-3 mt-4">
+              <div className="h-3 rounded-full overflow-hidden flex bg-[#1E1E1E] gap-0.5">
                 <div
                   style={{ width: `${percentAllocations.needs}%` }}
                   className="h-full bg-[#FFFFFF] transition-all"
@@ -476,157 +533,12 @@ export default function OnboardingFlow({ onFinish }) {
                   className="h-full bg-[#48484A] transition-all"
                 />
               </div>
-              <div className="flex items-center justify-between text-xs font-semibold text-[#A0A0A0] px-1">
-                <div className="flex items-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FFFFFF]" />
-                  <span>Needs {percentAllocations.needs}%</span>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#8E8E93]" />
-                  <span>Wants {percentAllocations.wants}%</span>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#48484A]" />
-                  <span>Savings {percentAllocations.savings}%</span>
-                </div>
-              </div>
             </div>
 
-            {/* Horizontal Range Slider Cards (No Subtext, No -5/+5 buttons) */}
-            <div className="space-y-3">
-              {/* Needs */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFFFFF]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Needs</span>
-                  </div>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-xs text-[#8A8A8A]">
-                      {currency}{currentAllocations.needs.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.needs}%</span>
-                  </div>
-                </div>
-
-                <div className="pt-1">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value={percentAllocations.needs}
-                    onChange={(e) =>
-                      setPercentAllocations((prev) => ({ ...prev, needs: Number(e.target.value) }))
-                    }
-                    className="w-full accent-white h-2 bg-[#222222] rounded-lg cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Wants */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#8E8E93]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Wants</span>
-                  </div>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-xs text-[#8A8A8A]">
-                      {currency}{currentAllocations.wants.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.wants}%</span>
-                  </div>
-                </div>
-
-                <div className="pt-1">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value={percentAllocations.wants}
-                    onChange={(e) =>
-                      setPercentAllocations((prev) => ({ ...prev, wants: Number(e.target.value) }))
-                    }
-                    className="w-full accent-[#8E8E93] h-2 bg-[#222222] rounded-lg cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Savings */}
-              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-4 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#48484A]" />
-                    <span className="text-sm font-bold text-[#FFFFFF]">Savings</span>
-                  </div>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-xs text-[#8A8A8A]">
-                      {currency}{currentAllocations.savings.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-sm font-bold font-mono text-[#FFFFFF]">{percentAllocations.savings}%</span>
-                  </div>
-                </div>
-
-                <div className="pt-1">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value={percentAllocations.savings}
-                    onChange={(e) =>
-                      setPercentAllocations((prev) => ({ ...prev, savings: Number(e.target.value) }))
-                    }
-                    className="w-full accent-[#636366] h-2 bg-[#222222] rounded-lg cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Single Centered CTA for Auto-Fix or Balance Status */}
-            <div className="flex justify-center pt-2">
-              {(() => {
-                const totalPct = percentAllocations.needs + percentAllocations.wants + percentAllocations.savings;
-                const isBalanced = totalPct === 100;
-
-                const autoFixPercentages = (nVal, wVal, sVal) => {
-                  const n = Math.max(0, Math.min(100, Math.round(Number(nVal) || 0)));
-                  const w = Math.max(0, Math.min(100, Math.round(Number(wVal) || 0)));
-                  if (n >= 100) return { needs: 80, wants: 10, savings: 10 };
-                  if (n + w >= 100) {
-                    const adjW = Math.max(5, 100 - n - 5);
-                    const adjS = Math.max(0, 100 - n - adjW);
-                    return { needs: n, wants: adjW, savings: adjS };
-                  }
-                  return { needs: n, wants: w, savings: 100 - n - w };
-                };
-
-                if (!isBalanced) {
-                  return (
-                    <button
-                      onClick={() => {
-                        const fixed = autoFixPercentages(percentAllocations.needs, percentAllocations.wants, percentAllocations.savings);
-                        setPercentAllocations(fixed);
-                      }}
-                      className="px-7 py-3.5 bg-[#FFFFFF] hover:bg-[#EAEAEA] text-[#090909] font-black text-xs sm:text-sm rounded-full flex items-center space-x-2 transition-all shadow-lg active:scale-95 cursor-pointer"
-                    >
-                      <Sparkles size={16} />
-                      <span>
-                        Auto Fix to 100% ({totalPct > 100 ? `+${totalPct - 100}% over` : `${100 - totalPct}% left`})
-                      </span>
-                    </button>
-                  );
-                }
-
-                return (
-                  <div className="flex items-center justify-center bg-[#141414] border border-[#242424] px-5 py-2.5 rounded-full font-bold text-xs text-[#FFFFFF]">
-                    <span>100% Fully Allocated</span>
-                  </div>
-                );
-              })()}
-            </div>
+            {/* Note */}
+            <p className="text-[11px] text-[#707070] text-center italic mt-2">
+              * Modify & customize percentages anytime in Settings
+            </p>
           </div>
 
           {/* Navigation Bar with Highlighted Continue CTA */}
