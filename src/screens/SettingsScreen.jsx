@@ -98,14 +98,9 @@ export default function SettingsScreen({ onBack, onStartOnboarding }) {
             {/* Adjust 50/30/20 Allocation */}
             <button
               onClick={() => setIsAdjustAllocationOpen(true)}
-              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all"
+              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all cursor-pointer"
             >
-              <div>
-                <span className="text-xs font-bold text-[#FFFFFF] block">Adjust 50/30/20 Allocation %</span>
-                <span className="text-[11px] text-[#8A8A8A]">
-                  Needs {categories.find((c) => c.id === 'needs')?.targetPercent || 50}% · Wants {categories.find((c) => c.id === 'wants')?.targetPercent || 30}% · Savings {categories.find((c) => c.id === 'savings')?.targetPercent || 20}%
-                </span>
-              </div>
+              <span className="text-xs font-bold text-[#FFFFFF]">Adjust 50/30/20 Allocation %</span>
               <ChevronRight size={16} color="#8A8A8A" />
             </button>
 
@@ -115,25 +110,19 @@ export default function SettingsScreen({ onBack, onStartOnboarding }) {
                 restartOnboarding();
                 if (onStartOnboarding) onStartOnboarding();
               }}
-              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all"
+              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all cursor-pointer"
             >
-              <div>
-                <span className="text-xs font-bold text-[#FFFFFF] block">Launch First-Time Setup Wizard</span>
-                <span className="text-[11px] text-[#8A8A8A]">Reconfigure monthly income and base categories</span>
-              </div>
+              <span className="text-xs font-bold text-[#FFFFFF]">Launch First-Time Setup Wizard</span>
               <ChevronRight size={16} color="#8A8A8A" />
             </button>
 
             {/* Export JSON */}
             <button
               onClick={handleExportData}
-              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all"
+              className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all cursor-pointer"
             >
-              <div>
-                <span className="text-xs font-bold text-[#FFFFFF] block">Export Full Ledger JSON</span>
-                <span className="text-[11px] text-[#8A8A8A]">{transactions.length} total entries</span>
-              </div>
-              <Download size={16} color="#8A8A8A" />
+              <span className="text-xs font-bold text-[#FFFFFF]">Export Full Ledger JSON</span>
+              <ChevronRight size={16} color="#8A8A8A" />
             </button>
 
             {/* Currency Selection */}
@@ -183,13 +172,10 @@ export default function SettingsScreen({ onBack, onStartOnboarding }) {
               ) : (
                 <button
                   onClick={() => setIsResetConfirm(true)}
-                  className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all"
+                  className="w-full flex items-center justify-between p-4 bg-[#1C1C1C] border border-[#282828] rounded-2xl text-left hover:border-[#383838] transition-all cursor-pointer"
                 >
-                  <div>
-                    <span className="text-xs font-bold text-[#FFFFFF] block">Reset to Reference Template Data</span>
-                    <span className="text-[11px] text-[#8A8A8A]">Restore default template data</span>
-                  </div>
-                  <RefreshCw size={15} color="#8A8A8A" />
+                  <span className="text-xs font-bold text-[#FFFFFF]">Reset to Reference Template Data</span>
+                  <ChevronRight size={16} color="#8A8A8A" />
                 </button>
               )}
             </div>
